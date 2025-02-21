@@ -1,15 +1,21 @@
-import { useEffect, useState } from "react";
-import type { Address } from "viem";
-import { useForm } from "react-hook-form";
-import { useAccount, useBalance, useConfig, useWriteContract } from "wagmi";
-import { get } from "es-toolkit/compat";
-import BigNumber from "bignumber.js";
-import { waitForTransactionReceipt } from "@wagmi/core";
-import { mainnet } from "viem/chains";
 import NiceModal from "@ebay/nice-modal-react";
 import { useQueryClient } from "@tanstack/react-query";
+import { waitForTransactionReceipt } from "@wagmi/core";
+import BigNumber from "bignumber.js";
+import { get } from "es-toolkit/compat";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import type { Address } from "viem";
+import { useAccount, useBalance, useConfig, useWriteContract } from "wagmi";
 
+import { IconGradientBox, IconSwap, IconUpAndDown } from "@/components/icons";
+import ImageWithFallback from "@/components/shared/image-with-fallback";
+import { ModalError } from "@/components/shared/modal-error";
+import { ModalProcessing } from "@/components/shared/modal-processing";
+import { ModalSuccess } from "@/components/shared/modal-success";
+import { NumericInput } from "@/components/shared/numeric-input";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Form,
   FormControl,
@@ -18,29 +24,25 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Card, CardContent } from "@/components/ui/card";
-import { NumericInput } from "@/components/shared/numeric-input";
-import { IconGradientBox, IconSwap, IconUpAndDown } from "@/components/icons";
-import { cn, isObjectEmpty, loopAsync } from "@/lib/utils";
-import type { TaxFarmResponse } from "@/services/models";
-import ImageWithFallback from "@/components/shared/image-with-fallback";
-import { useTokenBalance } from "@/hooks/useTokenBalance";
-import { fromDecimals, toBigInt, toCurrency, toDecimals } from "@/lib/number";
-import { createRules, rules } from "@/lib/form";
-import { useGetPairReserves } from "@/hooks/useGetPairReserves";
-import { useEstimateAmountOut } from "@/hooks/useEstimateAmountOut";
 import { useDebounceState } from "@/hooks/useDebounce";
-import { TokenContract } from "@/smart-contracts/TokenContract";
+import { useEstimateAmountOut } from "@/hooks/useEstimateAmountOut";
+import { useGetPairReserves } from "@/hooks/useGetPairReserves";
+import { useTokenBalance } from "@/hooks/useTokenBalance";
 import {
   BURN_TOKEN_SOFT_CAP,
+  DEFAULT_CHAIN,
+  SONIC_IMAGE,
   UNISWAP_V2_ROUTER_ADDRESS,
   WRAPPED_ETH_ADDRESS,
+  WRAPPED_SONIC_ADDRESS,
 } from "@/lib/constants";
-import { UniswapV2RouterAbi } from "@/smart-contracts/abi";
-import { ModalError } from "@/components/shared/modal-error";
-import { ModalSuccess } from "@/components/shared/modal-success";
-import { ModalProcessing } from "@/components/shared/modal-processing";
+import { createRules, rules } from "@/lib/form";
+import { fromDecimals, toBigInt, toCurrency, toDecimals } from "@/lib/number";
+import { cn, isObjectEmpty, loopAsync } from "@/lib/utils";
+import type { TaxFarmResponse } from "@/services/models";
 import { getTaxFarmControllerFindOneQueryKey } from "@/services/queries";
+import { TokenContract } from "@/smart-contracts/TokenContract";
+import { UniswapV2RouterAbi } from "@/smart-contracts/abi";
 
 interface SwapFormSchema {
   fromToken: string;
@@ -65,15 +67,17 @@ const getTokenInformation = ({
   pairReserves,
   chainId,
 }: TokenInfoParams) => {
-  const isNative = Object.values(WRAPPED_ETH_ADDRESS).includes(tokenAddress as Address);
+  const isNative = Object.values(WRAPPED_ETH_ADDRESS).includes(
+    tokenAddress as Address
+  );
 
   if (isNative)
     return {
-      name: "ETH",
-      symbol: "ETH",
+      name: "SONIC",
+      symbol: "S",
       decimals: 18,
-      address: WRAPPED_ETH_ADDRESS[chainId || mainnet.id],
-      logo: "https://s2.coinmarketcap.com/static/img/coins/128x128/1027.png",
+      address: WRAPPED_ETH_ADDRESS[chainId || DEFAULT_CHAIN],
+      logo: SONIC_IMAGE,
       reserve: pairReserves.ethReserve,
       balance: fromDecimals(balances.ethBalance.toString(), 18),
     };
@@ -96,7 +100,7 @@ export const SwapForm = ({ project }: { project: TaxFarmResponse }) => {
 
   const form = useForm<SwapFormSchema>({
     defaultValues: {
-      fromToken: WRAPPED_ETH_ADDRESS[chainId || mainnet.id],
+      fromToken: WRAPPED_SONIC_ADDRESS[chainId || DEFAULT_CHAIN],
       toToken: project.tokenAddress,
       fromAmount: "",
       toAmount: "",
@@ -112,22 +116,26 @@ export const SwapForm = ({ project }: { project: TaxFarmResponse }) => {
   const revenue = get(project, "revenue", 0);
   const swapPairAddress = get(project, "uniswapPair", "");
   const burnProgress = BigNumber(revenue)
-    .dividedBy(BURN_TOKEN_SOFT_CAP[chainId || mainnet.id])
+    .dividedBy(BURN_TOKEN_SOFT_CAP[chainId || DEFAULT_CHAIN])
     .multipliedBy(100)
     .toNumber();
   const debouncedFromAmount = useDebounceState(fromAmount, 500);
 
   const config = useConfig();
   const { writeContractAsync } = useWriteContract();
-  const { data: ethBalanceInWei = { value: 0n }, refetch: refetchEthBalance } = useBalance({
-    address,
-  });
-  const { data: tokenBalanceInWei } = useTokenBalance(project.tokenAddress as Address);
-
-  const { data: pairReserves, refetch: refetchPairReserves } = useGetPairReserves(
-    swapPairAddress as Address,
-    project.tokenAddress as Address,
+  const { data: ethBalanceInWei = { value: 0n }, refetch: refetchEthBalance } =
+    useBalance({
+      address,
+    });
+  const { data: tokenBalanceInWei } = useTokenBalance(
+    project.tokenAddress as Address
   );
+
+  const { data: pairReserves, refetch: refetchPairReserves } =
+    useGetPairReserves(
+      swapPairAddress as Address,
+      project.tokenAddress as Address
+    );
 
   const balances = {
     tokenBalance: tokenBalanceInWei ?? 0n,
@@ -150,15 +158,18 @@ export const SwapForm = ({ project }: { project: TaxFarmResponse }) => {
     chainId,
   });
 
-  const { data: expectedAmountOutInWei, isFetching: isFetchingExpectedAmountOut } =
-    useEstimateAmountOut({
-      amountIn: toBigInt(toDecimals(debouncedFromAmount)),
-      reserveIn: fromTokenInfo.reserve,
-      reserveOut: toTokenInfo.reserve,
-    });
+  const {
+    data: expectedAmountOutInWei,
+    isFetching: isFetchingExpectedAmountOut,
+  } = useEstimateAmountOut({
+    amountIn: toBigInt(toDecimals(debouncedFromAmount)),
+    reserveIn: fromTokenInfo.reserve,
+    reserveOut: toTokenInfo.reserve,
+  });
 
   useEffect(() => {
-    const expectedAmountOut = fromDecimals(expectedAmountOutInWei.toString()) || "";
+    const expectedAmountOut =
+      fromDecimals(expectedAmountOutInWei.toString()) || "";
     form.setValue("toAmount", expectedAmountOut);
   }, [expectedAmountOutInWei, form.setValue]);
 
@@ -175,14 +186,16 @@ export const SwapForm = ({ project }: { project: TaxFarmResponse }) => {
 
       NiceModal.show(ModalProcessing);
 
-      const isFromNative = Object.values(WRAPPED_ETH_ADDRESS).includes(fromToken as Address);
+      const isFromNative = Object.values(WRAPPED_ETH_ADDRESS).includes(
+        fromToken as Address
+      );
 
       let approved = false;
       if (!isFromNative) {
         approved = await TokenContract.approve({
           scAddress: fromToken as Address,
           account: address as Address,
-          spenderAddress: UNISWAP_V2_ROUTER_ADDRESS[chainId || mainnet.id],
+          spenderAddress: UNISWAP_V2_ROUTER_ADDRESS[chainId || DEFAULT_CHAIN],
           amount: toBigInt(toDecimals(values.fromAmount, 18)),
         });
       } else {
@@ -203,7 +216,7 @@ export const SwapForm = ({ project }: { project: TaxFarmResponse }) => {
         txHash = await writeContractAsync({
           abi: UniswapV2RouterAbi,
           functionName: "swapExactETHForTokensSupportingFeeOnTransferTokens",
-          address: UNISWAP_V2_ROUTER_ADDRESS[chainId || mainnet.id],
+          address: UNISWAP_V2_ROUTER_ADDRESS[chainId || DEFAULT_CHAIN],
           value: toBigInt(toDecimals(values.fromAmount)),
           args: [
             minAmountOut,
@@ -216,7 +229,7 @@ export const SwapForm = ({ project }: { project: TaxFarmResponse }) => {
         txHash = await writeContractAsync({
           abi: UniswapV2RouterAbi,
           functionName: "swapExactTokensForETHSupportingFeeOnTransferTokens",
-          address: UNISWAP_V2_ROUTER_ADDRESS[chainId || mainnet.id],
+          address: UNISWAP_V2_ROUTER_ADDRESS[chainId || DEFAULT_CHAIN],
           args: [
             toBigInt(toDecimals(values.fromAmount)),
             minAmountOut,
@@ -234,7 +247,7 @@ export const SwapForm = ({ project }: { project: TaxFarmResponse }) => {
       form.reset({
         fromAmount: "0",
         toAmount: "0",
-        fromToken: WRAPPED_ETH_ADDRESS[chainId || mainnet.id],
+        fromToken: WRAPPED_ETH_ADDRESS[chainId || DEFAULT_CHAIN],
         toToken: project.tokenAddress,
       });
       loopAsync(
@@ -249,12 +262,14 @@ export const SwapForm = ({ project }: { project: TaxFarmResponse }) => {
           });
           await refetchPairReserves();
         },
-        1000,
+        1000
       );
     } catch (error) {
       console.error(error);
       const errorMsg = get(error, "message", "");
-      const isInsufficientOutput = errorMsg.includes("INSUFFICIENT_OUTPUT_AMOUNT");
+      const isInsufficientOutput = errorMsg.includes(
+        "INSUFFICIENT_OUTPUT_AMOUNT"
+      );
       NiceModal.hide(ModalProcessing);
       NiceModal.show(ModalError, {
         errorMsg: isInsufficientOutput
@@ -266,7 +281,8 @@ export const SwapForm = ({ project }: { project: TaxFarmResponse }) => {
     }
   };
 
-  const isValid = form.formState.isValid && isObjectEmpty(form.formState.errors);
+  const isValid =
+    form.formState.isValid && isObjectEmpty(form.formState.errors);
 
   return (
     <Form {...form}>
@@ -283,7 +299,9 @@ export const SwapForm = ({ project }: { project: TaxFarmResponse }) => {
           <div className="flex items-center justify-between">
             <span className="text-sm text-foreground">
               Current Tax:{" "}
-              <span className="text-primary">{burnProgress >= 100 ? "1/1" : "5/5"}</span>
+              <span className="text-primary">
+                {burnProgress >= 100 ? "1/1" : "5/5"}
+              </span>
             </span>
             <div className="text-sm text-foreground flex items-center gap-2">
               Slippage
@@ -330,7 +348,9 @@ export const SwapForm = ({ project }: { project: TaxFarmResponse }) => {
                       className="w-10 h-10 rounded-full"
                     />
                     <div className="flex flex-col">
-                      <span className="text-xs leading-[16px] text-foreground">From</span>
+                      <span className="text-xs leading-[16px] text-foreground">
+                        From
+                      </span>
                       <span className="text-base font-bold text-app-white">
                         {fromTokenInfo.symbol}
                       </span>
@@ -354,7 +374,9 @@ export const SwapForm = ({ project }: { project: TaxFarmResponse }) => {
                   <Button
                     variant="link"
                     className="text-primary text-sm ml-auto p-0 h-auto"
-                    onClick={() => form.setValue("fromAmount", fromTokenInfo.balance)}
+                    onClick={() =>
+                      form.setValue("fromAmount", fromTokenInfo.balance)
+                    }
                   >
                     MAX
                   </Button>
@@ -370,7 +392,7 @@ export const SwapForm = ({ project }: { project: TaxFarmResponse }) => {
                   "rounded-full p-2 bg-primary hover:bg-primary/60",
                   "border border-solid border-[4px] border-background-surface",
                   "w-11 h-11",
-                  "backdrop-blur-[10px]",
+                  "backdrop-blur-[10px]"
                 )}
                 onClick={swapInputToken}
               >
@@ -390,7 +412,9 @@ export const SwapForm = ({ project }: { project: TaxFarmResponse }) => {
                       className="w-10 h-10 rounded-full"
                     />
                     <div className="flex flex-col">
-                      <span className="text-xs leading-[16px] text-foreground">To</span>
+                      <span className="text-xs leading-[16px] text-foreground">
+                        To
+                      </span>
                       <span className="text-base font-bold text-app-white">
                         {toTokenInfo.symbol}
                       </span>

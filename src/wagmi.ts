@@ -1,13 +1,16 @@
 import { http, createConfig, type Config } from "wagmi";
-import { mainnet, sepolia } from "wagmi/chains";
 import { injected, walletConnect } from "wagmi/connectors";
+import { sonic, sonicBlazeTestnet } from "@/lib/chains";
 
 export const config: Config = createConfig({
-  chains: [mainnet, sepolia],
-  connectors: [injected(), walletConnect({ projectId: import.meta.env.VITE_WC_PROJECT_ID })],
+  chains: [sonic, sonicBlazeTestnet],
+  connectors: [
+    injected(),
+    walletConnect({ projectId: import.meta.env.VITE_WC_PROJECT_ID }),
+  ],
   transports: {
-    [mainnet.id]: http(),
-    [sepolia.id]: http("https://eth-sepolia.public.blastapi.io"),
+    [sonic.id]: http(sonic.rpcUrls.default.http[0]),
+    [sonicBlazeTestnet.id]: http(sonicBlazeTestnet.rpcUrls.default.http[0]),
   },
 });
 

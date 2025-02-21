@@ -1,18 +1,24 @@
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import { useAccount, useConfig, useWriteContract } from "wagmi";
-import { parseEther } from "viem";
-import { useState } from "react";
 import NiceModal from "@ebay/nice-modal-react";
-import { sepolia } from "viem/chains";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { simulateContract, waitForTransactionReceipt } from "@wagmi/core";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { parseEther } from "viem";
+import { useAccount, useConfig, useWriteContract } from "wagmi";
+import * as z from "zod";
 
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import {
+  IconGradientBox,
+  IconMagicWand,
+  IconTelegram,
+  IconWebsite,
+  IconX,
+} from "@/components/icons";
+import { ModalDeployingToken } from "@/components/shared/modal-deploying-token";
+import { ModalError } from "@/components/shared/modal-error";
+import { ModalSuccess } from "@/components/shared/modal-success";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
 import {
   Form,
   FormControl,
@@ -22,19 +28,12 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { ImageUploader } from "@/components/ui/image-uploader";
-import {
-  IconGradientBox,
-  IconMagicWand,
-  IconTelegram,
-  IconWebsite,
-  IconX,
-} from "@/components/icons";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { TOKEN_FACTORY_ADDRESS } from "@/lib/constants";
 import { useTaxFarmControllerUpsert } from "@/services/queries";
 import { TokenFactoryV2Abi } from "@/smart-contracts/abi";
-import { TOKEN_FACTORY_ADDRESS } from "@/lib/constants";
-import { ModalSuccess } from "@/components/shared/modal-success";
-import { ModalError } from "@/components/shared/modal-error";
-import { ModalDeployingToken } from "@/components/shared/modal-deploying-token";
 
 const formSchema = z.object({
   tokenName: z.string().min(1, "Token name is required"),
@@ -60,7 +59,7 @@ export function CreateTokenForm() {
   const logoError = form.formState.errors.logo;
   const bannerError = form.formState.errors.banner;
 
-  const { address, chainId } = useAccount();
+  const { address, chain } = useAccount();
   const { writeContractAsync } = useWriteContract();
   const createTokenMutation = useTaxFarmControllerUpsert();
   const wagmiConfig = useConfig();
@@ -68,7 +67,7 @@ export function CreateTokenForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    if (!address || !chainId) {
+    if (!address || !chain) {
       return;
     }
 
@@ -78,19 +77,19 @@ export function CreateTokenForm() {
     try {
       const txResult = await simulateContract(wagmiConfig, {
         abi: TokenFactoryV2Abi,
-        address: TOKEN_FACTORY_ADDRESS[chainId],
+        address: TOKEN_FACTORY_ADDRESS[chain.id],
         functionName: "deployToken",
         args: [values.tokenName, values.tokenSymbol],
-        value: chainId === sepolia.id ? parseEther("0.01") : parseEther("1"),
+        value: chain.testnet ? parseEther("0.01") : parseEther("1"),
       });
 
       const txHash = await writeContractAsync({
         abi: TokenFactoryV2Abi,
         functionName: "deployToken",
-        address: TOKEN_FACTORY_ADDRESS[chainId],
+        address: TOKEN_FACTORY_ADDRESS[chain.id],
         account: address,
         args: [values.tokenName, values.tokenSymbol],
-        value: chainId === sepolia.id ? parseEther("0.01") : parseEther("1"),
+        value: chain.testnet ? parseEther("0.01") : parseEther("1"),
       });
 
       await waitForTransactionReceipt(wagmiConfig, { hash: txHash });
@@ -176,7 +175,8 @@ export function CreateTokenForm() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>
-                    Description <span className="text-white/60">(Optional)</span>
+                    Description{" "}
+                    <span className="text-white/60">(Optional)</span>
                   </FormLabel>
                   <FormControl>
                     <Textarea
@@ -190,14 +190,19 @@ export function CreateTokenForm() {
               )}
             />
             <div className="flex flex-col">
-              <h3 className="text-[24px] text-app-white font-semibold mb-2">Upload</h3>
+              <h3 className="text-[24px] text-app-white font-semibold mb-2">
+                Upload
+              </h3>
               <p className="text-app-gray text-xs md:text-base mb-6">
                 Define your token's identity with a custom logo and banner.
               </p>
               <div className="flex flex-col md:flex-row gap-6">
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <Label htmlFor="logo" className="text-sm text-app-white font-normal">
+                    <Label
+                      htmlFor="logo"
+                      className="text-sm text-app-white font-normal"
+                    >
                       Token Logo
                     </Label>
                     {logo && (
@@ -233,7 +238,10 @@ export function CreateTokenForm() {
                 </div>
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <Label htmlFor="banner" className="text-sm text-app-white font-normal">
+                    <Label
+                      htmlFor="banner"
+                      className="text-sm text-app-white font-normal"
+                    >
                       Add a Banner to Stand Out
                     </Label>
                     {banner && (
@@ -265,13 +273,17 @@ export function CreateTokenForm() {
                       }}
                     />
                   )}
-                  {bannerError && <FormMessage>{bannerError.message}</FormMessage>}
+                  {bannerError && (
+                    <FormMessage>{bannerError.message}</FormMessage>
+                  )}
                 </div>
               </div>
             </div>
             <div className="border-b border-white/[0.05] my-8 w-full h-[1px]" />
             <div className="flex flex-col">
-              <h3 className="text-[24px] text-app-white font-semibold mb-2">Social Links</h3>
+              <h3 className="text-[24px] text-app-white font-semibold mb-2">
+                Social Links
+              </h3>
               <p className="text-app-gray text-xs md:text-base mb-6">
                 Connect your token to the world through your social platforms.
               </p>
@@ -343,8 +355,9 @@ export function CreateTokenForm() {
               />
             </div>
             <div className="text-sm md:text-base text-app-white">
-              Only pay gas fees and the initial <span className="text-primary">1 ETH</span> for the
-              liquidity which will be returned to you in less than{" "}
+              Only pay gas fees and the initial{" "}
+              <span className="text-primary">1 ETH</span> for the liquidity
+              which will be returned to you in less than{" "}
               <span className="text-primary">24 hours</span>.
             </div>
             <Button
@@ -357,7 +370,9 @@ export function CreateTokenForm() {
           </form>
         </Form>
         <div className="text-sm md:text-base text-app-gray space-y-1 mt-6">
-          <p>• Please read the Tutorial if you don't know how to make a token.</p>
+          <p>
+            • Please read the Tutorial if you don't know how to make a token.
+          </p>
           <p>• Only file types allowed are .png, .jpeg and .gif.</p>
           <p>• Maximum file size allowed is 1 MB.</p>
         </div>

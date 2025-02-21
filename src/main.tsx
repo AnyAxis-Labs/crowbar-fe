@@ -6,7 +6,7 @@ import { RouterProvider, createRouter } from "@tanstack/react-router";
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { WagmiProvider } from "wagmi";
-import { mainnet, sepolia } from "wagmi/chains";
+import { sonic, sonicBlazeTestnet } from "@/lib/chains";
 import { Toaster } from "sonner";
 
 import { config } from "./wagmi.ts";
@@ -39,7 +39,7 @@ const metadata = {
   icons: ["https://avatars.githubusercontent.com/u/37784886"],
 };
 
-const chains = [mainnet, sepolia] as const;
+const chains = [sonic, sonicBlazeTestnet] as const;
 const wagmiConfig = defaultWagmiConfig({
   chains,
   projectId,
@@ -54,8 +54,9 @@ const wagmiConfig = defaultWagmiConfig({
 createWeb3Modal({
   wagmiConfig,
   projectId,
-  enableAnalytics: true, // Optional - defaults to your Cloud configuration
-  enableOnramp: true, // Optional - false as default
+  defaultChain: sonicBlazeTestnet,
+  enableAnalytics: false, // Optional - defaults to your Cloud configuration
+  enableOnramp: false, // Optional - false as default
 });
 
 // Render the app
@@ -77,7 +78,7 @@ if (!rootElement.innerHTML) {
           />
         </QueryClientProvider>
       </WagmiProvider>
-    </React.StrictMode>,
+    </React.StrictMode>
   );
 }
 

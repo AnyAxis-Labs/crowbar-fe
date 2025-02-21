@@ -1,7 +1,11 @@
 import { useForm } from "react-hook-form";
 import BigNumber from "bignumber.js";
-import { useAccount, useConfig, useReadContracts, useWriteContract } from "wagmi";
-import { mainnet } from "viem/chains";
+import {
+  useAccount,
+  useConfig,
+  useReadContracts,
+  useWriteContract,
+} from "wagmi";
 import { get } from "es-toolkit/compat";
 import { waitForTransactionReceipt } from "@wagmi/core";
 import { useState } from "react";
@@ -23,7 +27,11 @@ import { cn, isObjectEmpty } from "@/lib/utils";
 import StakingStats from "@/components/staking/staking-stats";
 import { NumericInput } from "@/components/shared/numeric-input";
 import { TokenStakingAbi } from "@/smart-contracts/abi";
-import { STAKING_CONTRACT_ADDRESS, STAKING_TOKEN_ADDRESS } from "@/lib/constants";
+import {
+  DEFAULT_CHAIN,
+  STAKING_CONTRACT_ADDRESS,
+  STAKING_TOKEN_ADDRESS,
+} from "@/lib/constants";
 import { fromDecimals, toCurrency, toDecimals } from "@/lib/number";
 import { createRules, rules } from "@/lib/form";
 import { ModalProcessing } from "@/components/shared/modal-processing";
@@ -46,8 +54,9 @@ export function UnstakeForm() {
   const { writeContractAsync } = useWriteContract();
   const config = useConfig();
 
-  const stakingTokenAddress = STAKING_TOKEN_ADDRESS[chainId || mainnet.id];
-  const stakingContractAddress = STAKING_CONTRACT_ADDRESS[chainId || mainnet.id];
+  const stakingTokenAddress = STAKING_TOKEN_ADDRESS[chainId || DEFAULT_CHAIN];
+  const stakingContractAddress =
+    STAKING_CONTRACT_ADDRESS[chainId || DEFAULT_CHAIN];
   const isStakingTokenNotSet = stakingTokenAddress === "0xFIXME";
 
   const { data: userTokenBalanceInWei = 0n, refetch: refetchUserTokenBalance } =
@@ -69,42 +78,55 @@ export function UnstakeForm() {
     ],
   });
 
-  const { data: userStakedInfos, refetch: refetchUserStakedInfos } = useReadContracts({
-    allowFailure: false,
-    contracts: [
-      {
-        address: stakingContractAddress,
-        abi: TokenStakingAbi,
-        functionName: "stakersInfos",
-        args: address ? [address] : undefined,
-        chainId,
-      },
-    ],
-  });
+  const { data: userStakedInfos, refetch: refetchUserStakedInfos } =
+    useReadContracts({
+      allowFailure: false,
+      contracts: [
+        {
+          address: stakingContractAddress,
+          abi: TokenStakingAbi,
+          functionName: "stakersInfos",
+          args: address ? [address] : undefined,
+          chainId,
+        },
+      ],
+    });
 
-  const { data: totalStakedData, refetch: refetchTotalStaked } = useReadContracts({
-    allowFailure: false,
-    contracts: [
-      {
-        address: stakingContractAddress,
-        abi: TokenStakingAbi,
-        functionName: "totalStaked",
-        chainId,
-      },
-    ],
-  });
+  const { data: totalStakedData, refetch: refetchTotalStaked } =
+    useReadContracts({
+      allowFailure: false,
+      contracts: [
+        {
+          address: stakingContractAddress,
+          abi: TokenStakingAbi,
+          functionName: "totalStaked",
+          chainId,
+        },
+      ],
+    });
 
   const decimals = get(stakeTokenData, 0, 18);
   const symbol = get(stakeTokenData, 1, "UNI");
   const userStakedAmount = get(userStakedInfos, [0, 0], 0);
   const totalStaked = get(totalStakedData, 0, 0) as number;
 
-  const undecimaledBalance = fromDecimals(userTokenBalanceInWei.toString() || "0", decimals);
-  const undecimaledTotalStaked = fromDecimals(totalStaked.toString() || "0", decimals);
-  const undecimaledUserStaked = fromDecimals(userStakedAmount.toString() || "0", decimals);
+  const undecimaledBalance = fromDecimals(
+    userTokenBalanceInWei.toString() || "0",
+    decimals
+  );
+  const undecimaledTotalStaked = fromDecimals(
+    totalStaked.toString() || "0",
+    decimals
+  );
+  const undecimaledUserStaked = fromDecimals(
+    userStakedAmount.toString() || "0",
+    decimals
+  );
 
   const updateTokenAmountByPercentage = (percentage: number) => {
-    const amount = BigNumber(undecimaledTotalStaked).multipliedBy(percentage).toString();
+    const amount = BigNumber(undecimaledTotalStaked)
+      .multipliedBy(percentage)
+      .toString();
     form.setValue("amount", amount);
   };
 
@@ -142,12 +164,18 @@ export function UnstakeForm() {
     }
   }
 
-  const isValid = form.formState.isValid && isObjectEmpty(form.formState.errors);
+  const isValid =
+    form.formState.isValid && isObjectEmpty(form.formState.errors);
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 md:space-y-6">
-        <h2 className="text-app-white text-base md:text-[20px] font-medium">Unstake Tokens</h2>
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="space-y-4 md:space-y-6"
+      >
+        <h2 className="text-app-white text-base md:text-[20px] font-medium">
+          Unstake Tokens
+        </h2>
         <FormField
           control={form.control}
           name="amount"
@@ -164,7 +192,9 @@ export function UnstakeForm() {
                     <span>Withdraw</span>
                     <span>
                       Balance:{" "}
-                      <span className="text-primary">{toCurrency(undecimaledTotalStaked)}</span>{" "}
+                      <span className="text-primary">
+                        {toCurrency(undecimaledTotalStaked)}
+                      </span>{" "}
                       {symbol}
                     </span>
                   </FormLabel>
@@ -189,7 +219,7 @@ export function UnstakeForm() {
                           "p-2 text-sm text-primary bg-transparent border-[1px] border-white/10 rounded-3xl",
                           "transition-opacity duration-300",
                           "hover:opacity-70 active:opacity-10",
-                          "w-[56px] h-[38px]",
+                          "w-[56px] h-[38px]"
                         )}
                         onClick={() => updateTokenAmountByPercentage(value)}
                       >

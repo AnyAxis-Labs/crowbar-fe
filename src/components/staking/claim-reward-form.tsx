@@ -1,15 +1,23 @@
 import { useState } from "react";
 import { erc20Abi } from "viem";
-import { mainnet } from "viem/chains";
 import { get } from "es-toolkit/compat";
 import NiceModal from "@ebay/nice-modal-react";
 import { waitForTransactionReceipt } from "@wagmi/core";
-import { useAccount, useConfig, useReadContracts, useWriteContract } from "wagmi";
+import {
+  useAccount,
+  useConfig,
+  useReadContracts,
+  useWriteContract,
+} from "wagmi";
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { fromDecimals, toCurrency } from "@/lib/number";
-import { STAKING_CONTRACT_ADDRESS, STAKING_TOKEN_ADDRESS } from "@/lib/constants";
+import {
+  DEFAULT_CHAIN,
+  STAKING_CONTRACT_ADDRESS,
+  STAKING_TOKEN_ADDRESS,
+} from "@/lib/constants";
 import { TokenStakingAbi } from "@/smart-contracts/abi";
 import { ModalProcessing } from "@/components/shared/modal-processing";
 import { ModalSuccess } from "@/components/shared/modal-success";
@@ -22,76 +30,99 @@ export function ClaimRewardForm() {
   const { address, chainId } = useAccount();
   const { writeContractAsync } = useWriteContract();
 
-  const stakingContractAddress = STAKING_CONTRACT_ADDRESS[chainId || mainnet.id];
+  const stakingContractAddress =
+    STAKING_CONTRACT_ADDRESS[chainId || DEFAULT_CHAIN];
 
   const { data: stakeTokenData } = useReadContracts({
     allowFailure: false,
     contracts: [
       {
-        address: STAKING_TOKEN_ADDRESS[chainId || mainnet.id],
+        address: STAKING_TOKEN_ADDRESS[chainId || DEFAULT_CHAIN],
         abi: erc20Abi,
         functionName: "decimals",
       },
       {
-        address: STAKING_TOKEN_ADDRESS[chainId || mainnet.id],
+        address: STAKING_TOKEN_ADDRESS[chainId || DEFAULT_CHAIN],
         abi: erc20Abi,
         functionName: "symbol",
       },
     ],
   });
 
-  const { data: protocolTotalRewardData, refetch: refetchProtocolTotalReward } = useReadContracts({
-    allowFailure: false,
-    contracts: [
-      {
-        address: stakingContractAddress,
-        abi: TokenStakingAbi,
-        functionName: "totalRewards",
-        chainId,
-      },
-    ],
-  });
+  const { data: protocolTotalRewardData, refetch: refetchProtocolTotalReward } =
+    useReadContracts({
+      allowFailure: false,
+      contracts: [
+        {
+          address: stakingContractAddress,
+          abi: TokenStakingAbi,
+          functionName: "totalRewards",
+          chainId,
+        },
+      ],
+    });
 
-  const { data: userRewardsData, refetch: refetchUserRewards } = useReadContracts({
-    allowFailure: false,
-    contracts: [
-      {
-        address: stakingContractAddress,
-        abi: TokenStakingAbi,
-        functionName: "getUserRewards",
-        args: address ? [address] : undefined,
-        chainId,
-      },
-    ],
-  });
+  const { data: userRewardsData, refetch: refetchUserRewards } =
+    useReadContracts({
+      allowFailure: false,
+      contracts: [
+        {
+          address: stakingContractAddress,
+          abi: TokenStakingAbi,
+          functionName: "getUserRewards",
+          args: address ? [address] : undefined,
+          chainId,
+        },
+      ],
+    });
 
-  const { data: userStakedInfos, refetch: refetchUserStakedInfos } = useReadContracts({
-    allowFailure: false,
-    contracts: [
-      {
-        address: stakingContractAddress,
-        abi: TokenStakingAbi,
-        functionName: "stakersInfos",
-        args: address ? [address] : undefined,
-        chainId,
-      },
-    ],
-  });
+  const { data: userStakedInfos, refetch: refetchUserStakedInfos } =
+    useReadContracts({
+      allowFailure: false,
+      contracts: [
+        {
+          address: stakingContractAddress,
+          abi: TokenStakingAbi,
+          functionName: "stakersInfos",
+          args: address ? [address] : undefined,
+          chainId,
+        },
+      ],
+    });
 
   const decimals = get(stakeTokenData, 0, 18);
   const symbol = get(stakeTokenData, 1, "UNI");
-  const protocolTotalRewardInWei = get(protocolTotalRewardData, 0, 0n) as bigint;
+  const protocolTotalRewardInWei = get(
+    protocolTotalRewardData,
+    0,
+    0n
+  ) as bigint;
   const userRewardsInWei = get(userRewardsData, 0, 0n) as bigint;
   const userStakedAmountInWei = get(userStakedInfos, [0, 0], 0n) as bigint;
 
-  const protocolTotalReward = fromDecimals(protocolTotalRewardInWei.toString() || "0", 18);
+  const protocolTotalReward = fromDecimals(
+    protocolTotalRewardInWei.toString() || "0",
+    18
+  );
   const userRewards = fromDecimals(userRewardsInWei.toString() || "0", 18);
-  const userStakedAmount = fromDecimals(userStakedAmountInWei.toString() || "0", decimals);
+  const userStakedAmount = fromDecimals(
+    userStakedAmountInWei.toString() || "0",
+    decimals
+  );
 
   const stats = [
-    { label: "Staked Amount", value: toCurrency(userStakedAmount, { suffix: ` ${symbol}` }) },
-    { label: "Total Rewards", value: toCurrency(protocolTotalReward, { suffix: " ETH" }) },
-    { label: "Available to Claim", value: toCurrency(userRewards, { suffix: " ETH" }) },
+    {
+      label: "Staked Amount",
+      value: toCurrency(userStakedAmount, { suffix: ` ${symbol}` }),
+    },
+    {
+      label: "Total Rewards",
+      value: toCurrency(protocolTotalReward, { suffix: " ETH" }),
+    },
+    {
+      label: "Available to Claim",
+      value: toCurrency(userRewards, { suffix: " ETH" }),
+    },
   ];
 
   async function onSubmit() {
@@ -128,7 +159,9 @@ export function ClaimRewardForm() {
         {stats.map((stat) => (
           <div key={stat.label} className="flex items-center justify-between">
             <span className="text-sm">{stat.label}</span>
-            <span className="text-sm font-medium text-primary">{stat.value}</span>
+            <span className="text-sm font-medium text-primary">
+              {stat.value}
+            </span>
           </div>
         ))}
       </Card>

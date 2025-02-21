@@ -1,31 +1,38 @@
-import { useLayoutEffect, useState } from "react";
-import { DateTime } from "luxon";
-import BigNumber from "bignumber.js";
-import { get } from "es-toolkit/compat";
-import { useInterval } from "usehooks-ts";
-import { useAccount, useChainId, useConfig, useWriteContract } from "wagmi";
-import { waitForTransactionReceipt } from "@wagmi/core";
-import { mainnet } from "viem/chains";
 import NiceModal from "@ebay/nice-modal-react";
 import { useQueryClient } from "@tanstack/react-query";
+import { waitForTransactionReceipt } from "@wagmi/core";
+import BigNumber from "bignumber.js";
+import { get } from "es-toolkit/compat";
+import { DateTime } from "luxon";
+import { useLayoutEffect, useState } from "react";
+import { useInterval } from "usehooks-ts";
+import { useAccount, useChainId, useConfig, useWriteContract } from "wagmi";
 
-import { Card, CardContent } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
-import { IconArrowUpRight, IconGradientBox, IconStatistic } from "@/components/icons";
-import type { TaxFarmResponse } from "@/services/models";
-import { toCurrency } from "@/lib/number";
-import { getTimeDifference, padZero } from "@/lib/utils";
-import { BURN_TOKEN_SOFT_CAP, TOKEN_FACTORY_ADDRESS } from "@/lib/constants";
-import { TokenFactoryV2Abi } from "@/smart-contracts/abi";
+import {
+  IconArrowUpRight,
+  IconGradientBox,
+  IconStatistic,
+} from "@/components/icons";
+import { ModalDisclaimer } from "@/components/shared/modal-disclaimer";
+import { ModalError } from "@/components/shared/modal-error";
 import { ModalProcessing } from "@/components/shared/modal-processing";
 import { ModalSuccess } from "@/components/shared/modal-success";
-import { ModalError } from "@/components/shared/modal-error";
 import { Button } from "@/components/ui/button";
-import { ModalDisclaimer } from "@/components/shared/modal-disclaimer";
+import { Card, CardContent } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import {
+  BURN_TOKEN_SOFT_CAP,
+  DEFAULT_CHAIN,
+  TOKEN_FACTORY_ADDRESS,
+} from "@/lib/constants";
+import { toCurrency } from "@/lib/number";
+import { getTimeDifference, padZero } from "@/lib/utils";
+import type { TaxFarmResponse } from "@/services/models";
 import {
   getTaxFarmControllerFindOneQueryKey,
   useTaxFarmControllerUpdate,
 } from "@/services/queries";
+import { TokenFactoryV2Abi } from "@/smart-contracts/abi";
 
 export const TokenStatistic = ({ project }: { project: TaxFarmResponse }) => {
   const revenue = get(project, "revenue", 0);
@@ -36,17 +43,22 @@ export const TokenStatistic = ({ project }: { project: TaxFarmResponse }) => {
   const config = useConfig();
   const updateProject = useTaxFarmControllerUpdate();
   const queryClient = useQueryClient();
-  const currentChainConfig = config.chains.find((chain) => chain.id === chainId);
+  const currentChainConfig = config.chains.find(
+    (chain) => chain.id === chainId
+  );
 
   const isOwner = address === project.creator;
 
-  const [isWithdrawLiquidityLoading, setIsWithdrawLiquidityLoading] = useState(false);
+  const [isWithdrawLiquidityLoading, setIsWithdrawLiquidityLoading] =
+    useState(false);
 
   const burnProgress = BigNumber(revenue)
     .dividedBy(BURN_TOKEN_SOFT_CAP[chainId])
     .multipliedBy(100)
     .toNumber();
-  const burnCountdownEndTime = DateTime.fromSeconds(tokenCreateTime).plus({ days: 1 });
+  const burnCountdownEndTime = DateTime.fromSeconds(tokenCreateTime).plus({
+    days: 1,
+  });
   const isBurnCountdownEnded = DateTime.now() > burnCountdownEndTime;
   const isWithdrawnLiquidity = get(project, "txWithdraw", null);
   const txBurn = get(project, "txBurn", null);
@@ -76,7 +88,7 @@ export const TokenStatistic = ({ project }: { project: TaxFarmResponse }) => {
 
       const txHash = await writeContractAsync({
         abi: TokenFactoryV2Abi,
-        address: TOKEN_FACTORY_ADDRESS[chainId || mainnet.id],
+        address: TOKEN_FACTORY_ADDRESS[chainId || DEFAULT_CHAIN],
         functionName: "withdrawLiquidity",
         args: [project.tokenAddress],
       });
@@ -108,7 +120,9 @@ export const TokenStatistic = ({ project }: { project: TaxFarmResponse }) => {
           <IconGradientBox className="w-10 h-10 text-primary" />
           <IconStatistic className="w-5 h-5 text-primary absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
         </div>
-        <h1 className="text-[20px] font-semibold text-app-white">Token Statistics</h1>
+        <h1 className="text-[20px] font-semibold text-app-white">
+          Token Statistics
+        </h1>
       </div>
       <CardContent className="space-y-4 p-0">
         <div className="flex justify-between">
@@ -121,7 +135,9 @@ export const TokenStatistic = ({ project }: { project: TaxFarmResponse }) => {
         <div className="flex justify-between">
           <span className="text-sm text-foreground">
             Burn Progress:{" "}
-            <span className="text-primary font-medium">{burnProgress.toFixed(2)}%</span>
+            <span className="text-primary font-medium">
+              {burnProgress.toFixed(2)}%
+            </span>
           </span>
           {txBurn ? (
             <a
@@ -130,12 +146,15 @@ export const TokenStatistic = ({ project }: { project: TaxFarmResponse }) => {
               target="_blank"
               rel="noreferrer"
             >
-              <span className="text-sm text-primary font-semibold underline">Etherscan</span>
+              <span className="text-sm text-primary font-semibold underline">
+                Etherscan
+              </span>
               <IconArrowUpRight />
             </a>
           ) : (
             <span className="text-sm text-primary font-semibold">
-              {toCurrency(revenue, { decimals: 2 })}/{BURN_TOKEN_SOFT_CAP[chainId]} ETH
+              {toCurrency(revenue, { decimals: 2 })}/
+              {BURN_TOKEN_SOFT_CAP[chainId]} ETH
             </span>
           )}
         </div>
@@ -143,14 +162,15 @@ export const TokenStatistic = ({ project }: { project: TaxFarmResponse }) => {
         <Progress value={burnProgress} className="h-4" />
 
         <p className="text-sm text-foreground">
-          When the token will have generated enough fees for the creator, the liquidity will{" "}
-          <span className="text-primary underline">burned</span>.
+          When the token will have generated enough fees for the creator, the
+          liquidity will <span className="text-primary underline">burned</span>.
         </p>
         <p className="text-sm text-foreground">
           If the token does not generate enough fees within{" "}
-          <span className="text-primary underline">24 hours</span>, the liquidity will be{" "}
-          <span className="text-primary underline">withdrawn</span> and sent back to the creator's
-          wallet.
+          <span className="text-primary underline">24 hours</span>, the
+          liquidity will be{" "}
+          <span className="text-primary underline">withdrawn</span> and sent
+          back to the creator's wallet.
         </p>
 
         {burnProgress < 100 && (
@@ -190,16 +210,19 @@ export const TokenStatistic = ({ project }: { project: TaxFarmResponse }) => {
           </button>
         )}
 
-        {!isWithdrawnLiquidity && isBurnCountdownEnded && burnProgress < 100 && isOwner && (
-          <Button
-            type="submit"
-            className="w-full text-primary-dark font-bold text-[18px] rounded-full h-[56px]"
-            onClick={submitWithdrawLiquidity}
-            loading={isWithdrawLiquidityLoading}
-          >
-            Withdraw Liquidity
-          </Button>
-        )}
+        {!isWithdrawnLiquidity &&
+          isBurnCountdownEnded &&
+          burnProgress < 100 &&
+          isOwner && (
+            <Button
+              type="submit"
+              className="w-full text-primary-dark font-bold text-[18px] rounded-full h-[56px]"
+              onClick={submitWithdrawLiquidity}
+              loading={isWithdrawLiquidityLoading}
+            >
+              Withdraw Liquidity
+            </Button>
+          )}
       </CardContent>
     </Card>
   );
