@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://tax-farm-be-dev.nysm.work/api/:path*"
+      "destination": "http://api-sonic-dev.nysm.work/api/:path*"
     },
     { "source": "/(.*)", "destination": "/index.html" }
   ],

@@ -43,10 +43,10 @@ export default defineConfig({
   server: {
     proxy: {
       "/api": {
-        target: "https://tax-farm-be-dev.nysm.work/api",
+        target: "http://api-sonic-dev.nysm.work/api",
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ""),
-      }
+      },
     },
   },
 });

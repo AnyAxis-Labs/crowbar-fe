@@ -18,12 +18,12 @@ export const formatImageUrl = (url?: string) => {
     return "";
   }
 
-  if (!url.startsWith("https://")) {
-    const cleanedUrl = url.replace("/api/file-upload/", "");
-    const baseUrl = `${import.meta.env.VITE_API_URL}api/file-upload/`;
+  // if (!url.startsWith("https://")) {
+  //   const cleanedUrl = url.replace("/api/file-upload/", "");
+  //   const baseUrl = `${import.meta.env.VITE_API_URL}api/file-upload/`;
 
-    return baseUrl + cleanedUrl;
-  }
+  //   return baseUrl + cleanedUrl;
+  // }
 
   return url;
 };
@@ -33,7 +33,13 @@ export const isObjectEmpty = (obj: Record<string, any>) => {
   return Object.keys(obj).length === 0 && obj.constructor === Object;
 };
 
-export const intervalToDuration = ({ start, end }: { start: number; end: number }) => {
+export const intervalToDuration = ({
+  start,
+  end,
+}: {
+  start: number;
+  end: number;
+}) => {
   if (!start || !end || start > end) {
     return {
       days: 0,
@@ -46,7 +52,9 @@ export const intervalToDuration = ({ start, end }: { start: number; end: number 
   const duration = end - start;
 
   const days = Math.floor(duration / (1000 * 60 * 60 * 24));
-  const hours = Math.floor((duration % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  const hours = Math.floor(
+    (duration % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+  );
   const minutes = Math.floor((duration % (1000 * 60 * 60)) / (1000 * 60));
   const seconds = Math.floor((duration % (1000 * 60)) / 1000);
 
@@ -84,7 +92,7 @@ export async function sleep(time: number) {
 export const loopAsync = async (
   times: number,
   callback: (index: number) => Promise<void>,
-  delays: number,
+  delays: number
 ) => {
   for (let i = 0; i < times; i++) {
     await callback(i);

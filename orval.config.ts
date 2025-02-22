@@ -10,7 +10,7 @@ export default defineConfig({
       prettier: true,
     },
     input: {
-      target: "https://tax-farm-be-dev.nysm.work/swagger/json",
+      target: "http://api-sonic-dev.nysm.work/swagger/json",
     },
   },
 });
