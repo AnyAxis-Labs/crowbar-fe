@@ -1,10 +1,10 @@
-import Marquee from "react-fast-marquee";
-import { Link, useRouterState } from "@tanstack/react-router";
-import { useAccount, useDisconnect } from "wagmi";
-import { useWeb3Modal } from "@web3modal/wagmi/react";
 import NiceModal from "@ebay/nice-modal-react";
-import { useMediaQuery } from "usehooks-ts";
+import { Link, useRouterState } from "@tanstack/react-router";
+import { useWeb3Modal } from "@web3modal/wagmi/react";
 import { get, take } from "es-toolkit/compat";
+import Marquee from "react-fast-marquee";
+import { useMediaQuery } from "usehooks-ts";
+import { useAccount, useAccountEffect, useDisconnect } from "wagmi";
 
 import {
   IconChevronDown,
@@ -13,10 +13,12 @@ import {
   IconMenu,
   IconProfile,
   IconTelegram,
-  IconUniSymbol,
   IconWallet,
   IconX,
 } from "@/components/icons";
+import ImageWithFallback from "@/components/shared/image-with-fallback";
+import ModalTutorial from "@/components/shared/modal-tutorial";
+import { UserAvatar } from "@/components/shared/user-avatar";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -25,17 +27,17 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn, headAddress, shortAddress } from "@/lib/utils";
-import ModalTutorial from "@/components/shared/modal-tutorial";
-import { UserAvatar } from "@/components/shared/user-avatar";
-import { useTaxFarmControllerGet } from "@/services/queries";
-import ImageWithFallback from "@/components/shared/image-with-fallback";
+import { useMemeControllerQueryPagination } from "@/services/queries";
 import { ModalMenu } from "./menu-modal";
 
 function HeaderMarquee() {
   const isMobile = useMediaQuery("(max-width: 768px)");
 
-  const { data: tokensResponse } = useTaxFarmControllerGet();
-  const tokens = get(tokensResponse, ["data"], []);
+  const { data: tokensResponse } = useMemeControllerQueryPagination({
+    pageSize: 10,
+    page: 1,
+  });
+  const tokens = get(tokensResponse, ["data", "data"], []);
   let topTenTokens = take(tokens, 10);
 
   // If there are less than 10 tokens, loop them to fill the marquee
@@ -69,7 +71,7 @@ function HeaderMarquee() {
               {item.symbol}
             </span>
             <ImageWithFallback
-              src={item.logo}
+              src={item.image}
               alt="logo"
               className="w-5 h-5 rounded-full"
             />
@@ -88,6 +90,15 @@ function Header() {
   const { open } = useWeb3Modal();
   const { disconnect } = useDisconnect();
 
+  useAccountEffect({
+    onConnect: (a) => {
+      sessionStorage.setItem("walletAddress", a.address);
+    },
+    onDisconnect: () => {
+      sessionStorage.removeItem("walletAddress");
+    },
+  });
+
   const isRouteActive = (path: string) => {
     return (
       path.startsWith("/") && path.split("/")[1] === pathname.split("/")[1]
@@ -97,7 +108,7 @@ function Header() {
   const menuItems = [
     { name: "Home", path: "/" },
     // { name: "Staking", path: "/staking" },
-    { name: "Token Support", path: "/token-support" },
+    // { name: "Token Support", path: "/token-support" },
     // { name: "Doc", path: "https://docs.planetverse.io" },
     // { name: "Tutorial", path: "#tutorial" },
   ];
@@ -110,7 +121,6 @@ function Header() {
           <div className="xl:min-w-[300px] flex">
             <Link to="/" className="flex items-center space-x-2">
               <IconLogoIcon className="h-11 w-11 text-primary" />
-              <IconUniSymbol className="ml-3 h-11 w-[124px] text-primary" />
             </Link>
           </div>
           <nav className="bg-white/[0.05] rounded-full p-1 hidden lg:flex">

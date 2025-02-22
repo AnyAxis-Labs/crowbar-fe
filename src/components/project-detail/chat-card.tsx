@@ -18,12 +18,18 @@ import {
 import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  useCommentsControllerCreate,
-  useCommentsControllerFindOne,
+  useCommentControllerCreate,
+  useCommentControllerGetPagination,
   useFileUploadControllerUploadSingle,
 } from "@/services/queries";
 import type { CommentResponse } from "@/services/models";
-import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
+} from "@/components/ui/form";
 import { formatImageUrl, shortAddress } from "@/lib/utils";
 import { ToastCard } from "@/components/shared/toast-card";
 import ImageWithFallback from "@/components/shared/image-with-fallback";
@@ -50,15 +56,23 @@ export const ChatCard = ({ hash }: ChatCardProps) => {
   const image = form.watch("image");
 
   const { address } = useAccount();
-  const { data: commentsResponse, refetch: refetchComments } = useCommentsControllerFindOne(hash, {
-    query: {
-      refetchInterval: 60 * 1000, // 1 minute
-    },
-  });
-  const createCommentMutation = useCommentsControllerCreate();
+  const { data: commentsResponse, refetch: refetchComments } =
+    useCommentControllerGetPagination(
+      {
+        tokenAddress: hash,
+      },
+      {
+        query: {
+          refetchInterval: 60 * 1000, // 1 minute
+        },
+      }
+    );
+  const createCommentMutation = useCommentControllerCreate();
 
-  const comments = get(commentsResponse, "data", [] as CommentResponse[]);
-  const sortedComments = comments.sort((a, b) => b.created_at.localeCompare(a.created_at));
+  const comments = get(commentsResponse, "data.data", []) as CommentResponse[];
+  const sortedComments = comments.sort((a, b) =>
+    b.created_at.localeCompare(a.created_at)
+  );
 
   const uploader = useFileUploadControllerUploadSingle({
     mutation: {
@@ -112,9 +126,8 @@ export const ChatCard = ({ hash }: ChatCardProps) => {
       await createCommentMutation.mutateAsync({
         data: {
           content: data.content,
-          taxFarmHash: hash,
+          tokenAddress: hash,
           image: data.image,
-          owner: address,
         },
       });
       refetchComments();
@@ -227,10 +240,13 @@ export const ChatCard = ({ hash }: ChatCardProps) => {
               className="mb-4 last:mb-0 p-3 bg-neutral-900 rounded-[12px] mr-0 md:mr-4"
             >
               <div className="flex items-center mb-4">
-                <UserAvatar name={comment.owner} className="w-10 h-10 mr-3" />
+                <UserAvatar
+                  name={comment.userInfo.bio}
+                  className="w-10 h-10 mr-3"
+                />
                 <div>
                   <span className="font-medium text-base text-app-white mr-2">
-                    {shortAddress(comment.owner)}
+                    {shortAddress(comment.userInfo.bio)}
                   </span>
                   <span className="text-[#525252] text-sm leading-[20px]">
                     {DateTime.fromISO(comment.created_at).toRelative()}

@@ -1,25 +1,30 @@
+import { Link } from "@tanstack/react-router";
 import BigNumber from "bignumber.js";
 import { get } from "es-toolkit/compat";
-import { Link } from "@tanstack/react-router";
 import { useChainId } from "wagmi";
 
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import { cn, headAddress, shortAddress } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { IconArrowUp, IconCopy, IconTelegram, IconWebsite, IconX } from "@/components/icons";
-import type { TaxFarmResponse } from "@/services/models";
+import {
+  IconArrowUp,
+  IconCopy,
+  IconTelegram,
+  IconWebsite,
+  IconX,
+} from "@/components/icons";
 import ImageWithFallback from "@/components/shared/image-with-fallback";
 import { UserAvatar } from "@/components/shared/user-avatar";
-import { useEthFiatPrice } from "@/hooks/useEthFiatPrice";
-import { abbreviateNumber, toCurrency } from "@/lib/number";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
 import { useCopyToClipboard } from "@/hooks/useCopyToClipboard";
-// import { BURN_TOKEN_SOFT_CAP, WRAPPED_ETH_ADDRESS } from "@/lib/constants";
-import { BURN_TOKEN_SOFT_CAP } from "@/lib/constants";
 import { useGetDexScreenerPairAddress } from "@/hooks/useDexscreenerPairAddress";
+import { useEthFiatPrice } from "@/hooks/useEthFiatPrice";
+import { BURN_TOKEN_SOFT_CAP } from "@/lib/constants";
+import { abbreviateNumber, toCurrency } from "@/lib/number";
+import { cn, headAddress, shortAddress } from "@/lib/utils";
+import type { MemeResponse } from "@/services/models";
 
-export const ProjectInfoCard = ({ project }: { project: TaxFarmResponse }) => {
+export const ProjectInfoCard = ({ project }: { project: MemeResponse }) => {
   const { copyToClipboard } = useCopyToClipboard();
   const { data: ethPrice = 0 } = useEthFiatPrice();
   const chainId = useChainId();
@@ -39,7 +44,11 @@ export const ProjectInfoCard = ({ project }: { project: TaxFarmResponse }) => {
   const revenueInUsd = BigNumber(revenue).multipliedBy(ethPrice).toString();
   const marketCapInUsd = BigNumber(marketCap).multipliedBy(ethPrice);
   const priceChange = priceLast5m
-    ? BigNumber(priceCurrent).minus(priceLast5m).dividedBy(priceLast5m).multipliedBy(100).toNumber()
+    ? BigNumber(priceCurrent)
+        .minus(priceLast5m)
+        .dividedBy(priceLast5m)
+        .multipliedBy(100)
+        .toNumber()
     : 0;
 
   const saleProgress = BigNumber(revenue)
@@ -47,7 +56,10 @@ export const ProjectInfoCard = ({ project }: { project: TaxFarmResponse }) => {
     .multipliedBy(100)
     .toNumber();
 
-  const openSocialLink = (e: React.MouseEvent<HTMLButtonElement>, url: string) => {
+  const openSocialLink = (
+    e: React.MouseEvent<HTMLButtonElement>,
+    url: string
+  ) => {
     e.stopPropagation();
     e.preventDefault();
     if (url) {
@@ -58,7 +70,8 @@ export const ProjectInfoCard = ({ project }: { project: TaxFarmResponse }) => {
   return (
     <Card className="w-full bg-background-surface overflow-hidden backdrop-blur-[10px] rounded-[32px] border-white/[0.05]">
       <ImageWithFallback
-        src={project.banner}
+        // src={project.banner}
+        src={project.image}
         alt="Project banner"
         className="w-full max-w-[unset] h-[200px] object-cover"
       />
@@ -66,14 +79,14 @@ export const ProjectInfoCard = ({ project }: { project: TaxFarmResponse }) => {
         <div className="flex flex-col md:flex-row gap-4 items-start justify-between mb-4">
           <div className="flex items-start gap-4">
             <ImageWithFallback
-              src={project.logo}
+              src={project.image}
               alt="Project logo"
               className="w-10 h-10 md:w-[88px] md:h-[88px] rounded-[16px]"
             />
             <div className="flex flex-col gap-2">
               <div className="flex items-end gap-2">
                 <span className="text-[20px] text-app-white font-semibold leading-[24px]">
-                  {project.tokenName}
+                  {project.name}
                 </span>
                 <span className="text-base text-[#525252] font-semibold leading-[20px]">
                   {project.symbol}
@@ -81,9 +94,14 @@ export const ProjectInfoCard = ({ project }: { project: TaxFarmResponse }) => {
               </div>
               <div className="flex items-center space-x-1 mt-1">
                 <span className="text-sm text-foreground">Creator</span>
-                <UserAvatar name={project.creator} className="w-4 h-4 rounded-full" />
+                <UserAvatar
+                  name={project.creator}
+                  className="w-4 h-4 rounded-full"
+                />
                 <Link to={`/profile/${project.creator}`}>
-                  <span className="text-sm text-primary">{headAddress(project.creator)}</span>
+                  <span className="text-sm text-primary">
+                    {headAddress(project.creator)}
+                  </span>
                 </Link>
               </div>
 
@@ -99,7 +117,9 @@ export const ProjectInfoCard = ({ project }: { project: TaxFarmResponse }) => {
               <Badge
                 className={cn(
                   "text-neutral-900 h-6 rounded-[4px] px-2 font-medium",
-                  priceChange > 0 ? "bg-primary hover:bg-primary/80" : "bg-error hover:bg-error/80",
+                  priceChange > 0
+                    ? "bg-primary hover:bg-primary/80"
+                    : "bg-error hover:bg-error/80"
                 )}
               >
                 {toCurrency(priceChange, { decimals: 2 })}%{" "}
@@ -133,12 +153,12 @@ export const ProjectInfoCard = ({ project }: { project: TaxFarmResponse }) => {
                 <IconTelegram className="h-4 w-4" />
               </Button>
             )}
-            {project.X && (
+            {project.x && (
               <Button
                 variant="ghost"
                 size="icon"
                 className="h-8 w-8 rounded-[8px] bg-white/10"
-                onClick={(e) => openSocialLink(e, project.X)}
+                onClick={(e) => openSocialLink(e, project.x)}
               >
                 <IconX className="h-[14px] w-[14px]" />
               </Button>

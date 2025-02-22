@@ -1,27 +1,39 @@
+import NiceModal from "@ebay/nice-modal-react";
 import { useNavigate } from "@tanstack/react-router";
 import { get } from "es-toolkit/compat";
 import { useMemo } from "react";
-import NiceModal from "@ebay/nice-modal-react";
 
-import { Button } from "@/components/ui/button";
-import { IconChevronRight, IconHomeBg, IconRocket, IconUniSymbol } from "@/components/icons";
-import { cn } from "@/lib/utils";
-import { GradientCard } from "@/components/ui/gradient-card";
-import { abbreviateNumber, toCurrency } from "@/lib/number";
-import { useTaxFarmControllerFindStatistic } from "@/services/queries";
+import {
+  IconChevronRight,
+  IconHomeBg,
+  IconLogoIcon,
+  IconRocket,
+} from "@/components/icons";
+// import { useTaxFarmControllerFindStatistic } from "@/services/queries";
 import ModalTutorial from "@/components/shared/modal-tutorial";
+import { Button } from "@/components/ui/button";
+import { abbreviateNumber, toCurrency } from "@/lib/number";
 
 export default function HomeHero() {
   const navigate = useNavigate();
 
-  const { data: statisticResponse } = useTaxFarmControllerFindStatistic();
+  // const { data: statisticResponse } = useTaxFarmControllerFindStatistic();
 
-  const data = get(statisticResponse, "data");
+  const data = get(
+    { data: { totalToken: 100, totalUser: 100, totalRevenue: 100 } },
+    "data"
+  );
 
   const stats = useMemo(() => {
     return [
-      { label: "Total Tokens", value: data ? toCurrency(data.totalToken || 0) : "--" },
-      { label: "Total User", value: data ? toCurrency(data.totalUser || 0) : "--" },
+      {
+        label: "Total Tokens",
+        value: data ? toCurrency(data.totalToken || 0) : "--",
+      },
+      {
+        label: "Total User",
+        value: data ? toCurrency(data.totalUser || 0) : "--",
+      },
       {
         label: "Total Revenue",
         value: data ? `$${abbreviateNumber(data.totalRevenue || 0, 0)}` : "--",
@@ -34,7 +46,7 @@ export default function HomeHero() {
       <div className="container flex items-center mx-auto px-4 isolate">
         <div className="flex flex-col w-full lg:flex-row items-center md:mx-auto lg:w-auto gap-[60px] lg:gap-36">
           <div className="w-full md:w-fit">
-            <IconUniSymbol className="h-[77px] w-[215px] mb-8" />
+            <IconLogoIcon className="h-[77px] w-[215px] mb-8" />
             <div className="flex items-center gap-6">
               <Button
                 className="rounded-full bg-primary-light text-primary-dark font-semibold flex items-center gap-2 py-2 px-4"
@@ -43,7 +55,11 @@ export default function HomeHero() {
                 Create New Token
                 <IconRocket className="mr-2 h-4 w-4" />
               </Button>
-              <Button variant="link" className="p-0" onClick={() => NiceModal.show(ModalTutorial)}>
+              <Button
+                variant="link"
+                className="p-0"
+                onClick={() => NiceModal.show(ModalTutorial)}
+              >
                 <span className="text-app-white text-sm leading-[20px] tracking-[0.07px]">
                   Learn more
                 </span>
@@ -64,7 +80,7 @@ export default function HomeHero() {
               />
               <IconHomeBg className="w-auto h-[450px] md:h-[720px]" />
             </div>
-            {stats.map((stat, index) => (
+            {/* {stats.map((stat, index) => (
               <GradientCard key={index.toString()}>
                 <div
                   className={cn(
@@ -72,7 +88,7 @@ export default function HomeHero() {
                     "border border-solid border-primary-light/[0.16]",
                     "backdrop-blur-[20px]",
                     "w-[250px] md:w-auto",
-                    "h-[106px] md:h-[140px]",
+                    "h-[106px] md:h-[140px]"
                   )}
                 >
                   <div className="text-[36px] font-semibold text-primary-light mb-2">
@@ -81,7 +97,7 @@ export default function HomeHero() {
                   <div className="text-base text-white/60">{stat.label}</div>
                 </div>
               </GradientCard>
-            ))}
+            ))} */}
           </div>
         </div>
       </div>

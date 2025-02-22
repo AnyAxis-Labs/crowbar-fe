@@ -39,10 +39,10 @@ import {
 import { createRules, rules } from "@/lib/form";
 import { fromDecimals, toBigInt, toCurrency, toDecimals } from "@/lib/number";
 import { cn, isObjectEmpty, loopAsync } from "@/lib/utils";
-import type { TaxFarmResponse } from "@/services/models";
-import { getTaxFarmControllerFindOneQueryKey } from "@/services/queries";
+import type { MemeResponse } from "@/services/models";
 import { TokenContract } from "@/smart-contracts/TokenContract";
 import { UniswapV2RouterAbi } from "@/smart-contracts/abi";
+import { getMemeControllerFindDetailQueryKey } from "@/services/queries";
 
 interface SwapFormSchema {
   fromToken: string;
@@ -54,7 +54,7 @@ interface SwapFormSchema {
 
 interface TokenInfoParams {
   tokenAddress: string;
-  project: TaxFarmResponse;
+  project: MemeResponse;
   balances: { tokenBalance: bigint; ethBalance: bigint };
   pairReserves: { tokenReserve: bigint; ethReserve: bigint };
   chainId: number | undefined;
@@ -83,17 +83,17 @@ const getTokenInformation = ({
     };
 
   return {
-    name: project.tokenName,
+    name: project.name,
     symbol: project.symbol,
     decimals: 18,
     address: project.tokenAddress,
-    logo: project.logo,
+    logo: project.image,
     reserve: pairReserves.tokenReserve,
     balance: fromDecimals(balances.tokenBalance.toString(), 18),
   };
 };
 
-export const SwapForm = ({ project }: { project: TaxFarmResponse }) => {
+export const SwapForm = ({ project }: { project: MemeResponse }) => {
   const [isLoading, setIsLoading] = useState(false);
   const { address, chainId } = useAccount();
   const queryClient = useQueryClient();
@@ -254,7 +254,7 @@ export const SwapForm = ({ project }: { project: TaxFarmResponse }) => {
         5,
         async () => {
           await queryClient.invalidateQueries({
-            queryKey: getTaxFarmControllerFindOneQueryKey(project.tokenAddress),
+            queryKey: getMemeControllerFindDetailQueryKey(project.tokenAddress),
           });
           await refetchEthBalance();
           await queryClient.invalidateQueries({

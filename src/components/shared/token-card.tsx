@@ -1,24 +1,30 @@
-import { useState } from "react";
+import { Link, useNavigate } from "@tanstack/react-router";
 import BigNumber from "bignumber.js";
 import { get } from "es-toolkit/compat";
+import { useState } from "react";
 import { useChainId } from "wagmi";
-import { Link, useNavigate } from "@tanstack/react-router";
 
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { IconWebsite, IconTelegram, IconX, IconEllipse, IconArrowUp } from "@/components/icons";
-import { cn, headAddress } from "@/lib/utils";
-import { Progress } from "@/components/ui/progress";
-import type { TaxFarmResponse } from "@/services/models";
-import { UserAvatar } from "@/components/shared/user-avatar";
+import {
+  IconArrowUp,
+  IconEllipse,
+  IconTelegram,
+  IconWebsite,
+  IconX,
+} from "@/components/icons";
 import ImageWithFallback from "@/components/shared/image-with-fallback";
+import { UserAvatar } from "@/components/shared/user-avatar";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
 import { useEthFiatPrice } from "@/hooks/useEthFiatPrice";
-import { toCurrency } from "@/lib/number";
 import { BURN_TOKEN_SOFT_CAP } from "@/lib/constants";
+import { toCurrency } from "@/lib/number";
+import { cn, headAddress } from "@/lib/utils";
+import type { MemeResponse } from "@/services/models";
 
 interface TokenCardProps {
-  item: TaxFarmResponse;
+  item: MemeResponse;
 }
 
 export const TokenCard = ({ item }: TokenCardProps) => {
@@ -36,7 +42,11 @@ export const TokenCard = ({ item }: TokenCardProps) => {
   const revenueInUsd = BigNumber(revenue).multipliedBy(ethPrice).toString();
   const marketCapInUsd = BigNumber(marketCap).multipliedBy(ethPrice);
   const priceChange = priceLast5m
-    ? BigNumber(priceCurrent).minus(priceLast5m).dividedBy(priceLast5m).multipliedBy(100).toNumber()
+    ? BigNumber(priceCurrent)
+        .minus(priceLast5m)
+        .dividedBy(priceLast5m)
+        .multipliedBy(100)
+        .toNumber()
     : 0;
 
   const saleProgress = BigNumber(revenue)
@@ -52,7 +62,10 @@ export const TokenCard = ({ item }: TokenCardProps) => {
     setIsHovered(false);
   };
 
-  const openSocialLink = (e: React.MouseEvent<HTMLButtonElement>, url: string) => {
+  const openSocialLink = (
+    e: React.MouseEvent<HTMLButtonElement>,
+    url: string
+  ) => {
     e.stopPropagation();
     e.preventDefault();
     if (url) {
@@ -79,7 +92,7 @@ export const TokenCard = ({ item }: TokenCardProps) => {
           "transition-all duration-300",
           isHovered
             ? "bg-gradient-to-b from-primary-light/10 from-30% to-primary-light/40 cursor-pointer"
-            : "bg-white/10",
+            : "bg-white/10"
         )}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
@@ -87,18 +100,21 @@ export const TokenCard = ({ item }: TokenCardProps) => {
         <div className="bg-gradient-to-b from-[#292929] to-[#1E1E1E] rounded-[31px]">
           <div className="relative rounded-[32px] overflow-hidden bg-transparent">
             <ImageWithFallback
-              src={item.banner}
-              alt={item.tokenName}
+              // src={item.banner}
+              src={item.image}
+              alt={item.name}
               className={cn(
                 "w-full object-cover transition-all duration-300 bg-transparent",
-                isHovered ? "h-[114px]" : "h-[176px]",
+                isHovered ? "h-[114px]" : "h-[176px]"
               )}
             />
             {Boolean(priceChange) && (
               <Badge
                 className={cn(
                   "text-neutral-900 h-6 rounded-[4px] px-2 font-medium absolute top-3 right-3",
-                  priceChange > 0 ? "bg-primary hover:bg-primary/80" : "bg-error hover:bg-error/80",
+                  priceChange > 0
+                    ? "bg-primary hover:bg-primary/80"
+                    : "bg-error hover:bg-error/80"
                 )}
               >
                 {toCurrency(priceChange, { decimals: 2 })}%{" "}
@@ -113,8 +129,8 @@ export const TokenCard = ({ item }: TokenCardProps) => {
           <CardContent className="relative px-4 isolate z-10">
             <div className="flex items-end gap-2 -mt-5">
               <ImageWithFallback
-                src={item.logo}
-                alt={item.tokenName}
+                src={item.image}
+                alt={item.name}
                 className="w-[64px] h-[64px] rounded-full border border-solid border-black border-[2px] mr-2"
               />
               {item.website && (
@@ -137,20 +153,24 @@ export const TokenCard = ({ item }: TokenCardProps) => {
                   <IconTelegram className="h-4 w-4" />
                 </Button>
               )}
-              {item.X && (
+              {item.x && (
                 <Button
                   variant="ghost"
                   size="icon"
                   className="h-8 w-[58px] bg-transparent border border-solid rounded-full border-white/10"
-                  onClick={(e) => openSocialLink(e, item.X)}
+                  onClick={(e) => openSocialLink(e, item.x)}
                 >
                   <IconX className="h-[14px] w-[14px]" />
                 </Button>
               )}
             </div>
             <div className="flex mt-1 items-center gap-2">
-              <span className="text-app-white text-[20px] font-semibold">{item.tokenName}</span>
-              <span className="text-app-gray text-[18px] font-bold">{item.symbol}</span>
+              <span className="text-app-white text-[20px] font-semibold">
+                {item.name}
+              </span>
+              <span className="text-app-gray text-[18px] font-bold">
+                {item.symbol}
+              </span>
             </div>
             <div
               className="flex items-center space-x-1 mt-1 mb-2"
@@ -158,7 +178,9 @@ export const TokenCard = ({ item }: TokenCardProps) => {
             >
               <span className="text-sm text-foreground">Creator</span>
               <UserAvatar name={item.creator} className="w-4 h-4" />
-              <span className="text-sm text-primary">{headAddress(item.creator)}</span>
+              <span className="text-sm text-primary">
+                {headAddress(item.creator)}
+              </span>
             </div>
 
             <p
@@ -167,7 +189,7 @@ export const TokenCard = ({ item }: TokenCardProps) => {
                 "overflow-hidden transition-all duration-300",
                 "line-clamp-3",
                 "break-words",
-                isHovered ? "h-[62px] opacity-100" : "h-0 opacity-0",
+                isHovered ? "h-[62px] opacity-100" : "h-0 opacity-0"
               )}
             >
               {item.description}
@@ -197,7 +219,7 @@ export const TokenCard = ({ item }: TokenCardProps) => {
                 "absolute bottom-0 left-0 w-full h-auto transform translate-y-[calc(50%-80px)]",
                 isHovered ? "opacity-100" : "opacity-0",
                 "transition-all duration-300",
-                "pointer-events-none select-none",
+                "pointer-events-none select-none"
               )}
             />
           </CardContent>

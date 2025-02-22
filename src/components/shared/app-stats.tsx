@@ -5,17 +5,31 @@ import { abbreviateNumber, toCurrency } from "@/lib/number";
 import { cn } from "@/lib/utils";
 import { IconCreateTokenBg } from "@/components/icons";
 import { GradientCard } from "@/components/ui/gradient-card";
-import { useTaxFarmControllerFindStatistic } from "@/services/queries";
 
 export const AppStats = () => {
-  const { data: statisticResponse } = useTaxFarmControllerFindStatistic();
+  // const { data: statisticResponse } = useTaxFarmControllerFindStatistic();
 
-  const data = get(statisticResponse, "data");
+  const data = get(
+    {
+      data: {
+        totalToken: 0,
+        totalUser: 0,
+        totalRevenue: 0,
+      },
+    },
+    "data"
+  );
 
   const stats = useMemo(() => {
     return [
-      { label: "Total Tokens", value: data ? toCurrency(data.totalToken || 0) : "--" },
-      { label: "Total User", value: data ? toCurrency(data.totalUser || 0) : "--" },
+      {
+        label: "Total Tokens",
+        value: data ? toCurrency(data.totalToken || 0) : "--",
+      },
+      {
+        label: "Total User",
+        value: data ? toCurrency(data.totalUser || 0) : "--",
+      },
       {
         label: "Total Revenue",
         value: data ? `$${abbreviateNumber(data.totalRevenue || 0, 0)}` : "--",
@@ -39,13 +53,15 @@ export const AppStats = () => {
               className={cn(
                 "!rounded-[16px] md:!rounded-[32px] py-4 px-6 md:px-8 flex flex-col items-center justify-center text-center h-[78px] md:h-[140px]",
                 "border border-solid border-primary-light/[0.16]",
-                "backdrop-blur-[20px]",
+                "backdrop-blur-[20px]"
               )}
             >
               <div className="text-[18px] md:text-[36px] font-semibold text-primary-light mb-2">
                 {stat.value}
               </div>
-              <div className="text-xs md:text-base text-white/60">{stat.label}</div>
+              <div className="text-xs md:text-base text-white/60">
+                {stat.label}
+              </div>
             </div>
           </GradientCard>
         ))}

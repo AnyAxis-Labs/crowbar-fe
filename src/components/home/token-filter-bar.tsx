@@ -1,4 +1,4 @@
-import { useNavigate, useSearch } from "@tanstack/react-router";
+import { IconFlag, IconRising, IconSearch } from "@/components/icons";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -9,19 +9,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { cn } from "@/lib/utils";
-import {
-  IconFlag,
-  IconNew,
-  IconRising,
-  IconSearch,
-  IconTopStar,
-  IconTrending,
-} from "@/components/icons";
-import { Route as IndexRoute } from "@/routes/index";
 import { useDebounceState } from "@/hooks/useDebounce";
-import { useEffect, useState } from "react";
+import { cn } from "@/lib/utils";
+import { Route as IndexRoute } from "@/routes/index";
 import type { HomeFilter, SortBy, SortOrder } from "@/types";
+import { useNavigate, useSearch } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 
 const tabs: {
   value: HomeFilter;
@@ -29,29 +22,14 @@ const tabs: {
   label: string;
 }[] = [
   {
-    value: "trending",
-    Icon: IconTrending,
-    label: "Trending",
-  },
-  {
-    value: "top",
-    Icon: IconTopStar,
-    label: "Top",
-  },
-  {
-    value: "rising",
+    value: "bonding-curve",
     Icon: IconRising,
-    label: "Rising",
+    label: "Bonding Curve",
   },
   {
-    value: "new",
-    Icon: IconNew,
-    label: "New",
-  },
-  {
-    value: "finalized",
+    value: "dex-listed",
     Icon: IconFlag,
-    label: "Finalized",
+    label: "Dex Listed",
   },
 ];
 
@@ -71,7 +49,7 @@ export const TokenFilterBar = () => {
 
   const updateQueryParams = (
     key: keyof typeof queryParams,
-    value: SortBy | SortOrder | HomeFilter | string,
+    value: SortBy | SortOrder | HomeFilter | string
   ) => {
     navigate({
       search: {
@@ -86,7 +64,10 @@ export const TokenFilterBar = () => {
   return (
     <div className="container mt-8">
       <div className="flex flex-col-reverse lg:flex-row items-center justify-between gap-2 lg:gap-4">
-        <Tabs defaultValue="trending" className="w-full overflow-x-auto hidden-scroll-bar">
+        <Tabs
+          defaultValue="trending"
+          className="w-full overflow-x-auto hidden-scroll-bar"
+        >
           <TabsList className="bg-transparent gap-2">
             {tabs.map((tab) => (
               <TabsTrigger
@@ -98,7 +79,7 @@ export const TokenFilterBar = () => {
                   "bg-white/[0.05]",
                   "text-foreground",
                   "text-sm leading-[20px] font-medium tracking-[0.07px]",
-                  "data-[state=active]:bg-primary-light/20 data-[state=active]:text-primary",
+                  "data-[state=active]:bg-primary-light/20 data-[state=active]:text-primary"
                 )}
                 onClick={() => updateQueryParams("type", tab.value)}
               >
@@ -121,7 +102,9 @@ export const TokenFilterBar = () => {
           <div className="flex flex-row items-center gap-2 lg:gap-4 w-full lg:w-auto">
             <Select
               value={sortBy || "revenue"}
-              onValueChange={(value) => updateQueryParams("sortBy", value as SortBy)}
+              onValueChange={(value) =>
+                updateQueryParams("sortBy", value as SortBy)
+              }
             >
               <SelectTrigger className="w-full lg:w-fit text-primary whitespace-nowrap rounded-[8px] bg-white/10 py-2 px-4 gap-2 border-0">
                 <div className="flex items-center gap-2">
@@ -139,7 +122,9 @@ export const TokenFilterBar = () => {
             </Select>
             <Select
               value={sortOrder || "DESC"}
-              onValueChange={(value) => updateQueryParams("sortOrder", value as SortOrder)}
+              onValueChange={(value) =>
+                updateQueryParams("sortOrder", value as SortOrder)
+              }
             >
               <SelectTrigger className="w-full lg:w-fit text-primary whitespace-nowrap rounded-[8px] bg-white/10 py-2 px-4 gap-2 border-0">
                 <div className="flex items-center gap-2">

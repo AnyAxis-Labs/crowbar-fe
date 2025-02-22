@@ -1,16 +1,15 @@
-import { useState, useEffect, useRef, useLayoutEffect } from "react";
-import { get } from "es-toolkit/compat";
 import { createFileRoute } from "@tanstack/react-router";
+import { get } from "es-toolkit/compat";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useMediaQuery } from "usehooks-ts";
 
 import { IconLoading } from "@/components/icons";
 import { ChatCard } from "@/components/project-detail/chat-card";
 import { ProjectInfoCard } from "@/components/project-detail/project-info-card";
 import { SwapForm } from "@/components/project-detail/swap-form";
-import { TokenStatistic } from "@/components/project-detail/token-statistic";
 import { Empty } from "@/components/shared/empty";
-import { useTaxFarmControllerFindOne } from "@/services/queries";
 import { cn } from "@/lib/utils";
+import { useMemeControllerFindDetail } from "@/services/queries";
 
 export const Route = createFileRoute("/project/$id")({
   component: ProjectDetail,
@@ -29,7 +28,7 @@ function ProjectDetail() {
     chat: null,
   });
 
-  const { data: projectResponse, isLoading } = useTaxFarmControllerFindOne(id);
+  const { data: projectResponse, isLoading } = useMemeControllerFindDetail(id);
 
   const project = get(projectResponse, "data", null);
 
@@ -45,13 +44,15 @@ function ProjectDetail() {
       setIsFixed(scrollPosition > navOffsetTop);
 
       // Check which section is currently in view
-      const currentSection = Object.entries(sectionRefs.current).find(([_, ref]) => {
-        if (ref) {
-          const rect = ref.getBoundingClientRect();
-          return rect.top <= 300 && rect.bottom >= 300;
+      const currentSection = Object.entries(sectionRefs.current).find(
+        ([_, ref]) => {
+          if (ref) {
+            const rect = ref.getBoundingClientRect();
+            return rect.top <= 300 && rect.bottom >= 300;
+          }
+          return false;
         }
-        return false;
-      });
+      );
 
       if (currentSection) {
         setActiveSection(currentSection[0]);
@@ -71,7 +72,7 @@ function ProjectDetail() {
       "flex items-center justify-center border-b-[2px] border-solid p-3 text-sm font-medium",
       activeSection === section
         ? "text-primary border-primary"
-        : "text-foreground border-transparent",
+        : "text-foreground border-transparent"
     );
 
   useLayoutEffect(() => {
@@ -87,7 +88,12 @@ function ProjectDetail() {
   }
 
   if (!project) {
-    return <Empty description="Project not found" className="my-[100px] h-[calc(100vh-500px)]" />;
+    return (
+      <Empty
+        description="Project not found"
+        className="my-[100px] h-[calc(100vh-500px)]"
+      />
+    );
   }
 
   if (isMobile) {
@@ -97,7 +103,7 @@ function ProjectDetail() {
           ref={navRef}
           className={cn(
             "grid px-2 grid-cols-4 w-screen bg-background-surface z-10 transition-all duration-300",
-            isFixed ? "fixed top-0" : "",
+            isFixed ? "fixed top-0" : ""
           )}
         >
           <div className={navItemClass("overview")}>Overview</div>
@@ -105,15 +111,26 @@ function ProjectDetail() {
           <div className={navItemClass("statistics")}>Statistics</div>
           <div className={navItemClass("chat")}>Chat</div>
         </div>
-        <div className={cn("flex flex-col gap-4 container mt-4 mb-8", isFixed ? "pt-[50px]" : "")}>
-          <div id="project-info-card" ref={(el) => (sectionRefs.current.overview = el)}>
+        <div
+          className={cn(
+            "flex flex-col gap-4 container mt-4 mb-8",
+            isFixed ? "pt-[50px]" : ""
+          )}
+        >
+          <div
+            id="project-info-card"
+            ref={(el) => (sectionRefs.current.overview = el)}
+          >
             <ProjectInfoCard project={project} />
           </div>
           <div id="swap-form" ref={(el) => (sectionRefs.current.swap = el)}>
             <SwapForm project={project} />
           </div>
-          <div id="token-statistic" ref={(el) => (sectionRefs.current.statistics = el)}>
-            <TokenStatistic project={project} />
+          <div
+            id="token-statistic"
+            ref={(el) => (sectionRefs.current.statistics = el)}
+          >
+            {/* <TokenStatistic project={project} /> */}
           </div>
           <div id="chat-card" ref={(el) => (sectionRefs.current.chat = el)}>
             <ChatCard hash={id} />
@@ -131,7 +148,7 @@ function ProjectDetail() {
       </div>
       <div className="flex flex-col gap-4 w-[406px]">
         <SwapForm project={project} />
-        <TokenStatistic project={project} />
+        {/* <TokenStatistic project={project} /> */}
       </div>
     </div>
   );

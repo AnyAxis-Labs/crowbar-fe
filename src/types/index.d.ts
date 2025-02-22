@@ -1,5 +1,5 @@
-export type HomeFilter = "trending" | "top" | "rising" | "new" | "finalized";
-export type SortBy = "revenue" | "createTime" | "marketCap";
+export type HomeFilter = "bonding-curve" | "dex-listed";
+export type SortBy = "creation-time" | "trading-volume" | "market-cap";
 export type SortOrder = "ASC" | "DESC";
 
 export type HomeSearch = {

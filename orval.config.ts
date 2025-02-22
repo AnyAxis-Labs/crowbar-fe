@@ -8,6 +8,12 @@ export default defineConfig({
       schemas: "src/services/models",
       client: "react-query",
       prettier: true,
+      override: {
+        mutator: {
+          path: "src/services/custom-client.ts",
+          name: "customClient",
+        },
+      },
     },
     input: {
       target: "http://api-sonic-dev.nysm.work/swagger/json",

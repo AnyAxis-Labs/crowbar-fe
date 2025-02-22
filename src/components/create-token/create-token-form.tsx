@@ -1,10 +1,8 @@
 import NiceModal from "@ebay/nice-modal-react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { simulateContract, waitForTransactionReceipt } from "@wagmi/core";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { parseEther } from "viem";
-import { useAccount, useConfig, useWriteContract } from "wagmi";
+import { useAccount } from "wagmi";
 import * as z from "zod";
 
 import {
@@ -31,9 +29,7 @@ import { ImageUploader } from "@/components/ui/image-uploader";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { TOKEN_FACTORY_ADDRESS } from "@/lib/constants";
-import { useTaxFarmControllerUpsert } from "@/services/queries";
-import { TokenFactoryV2Abi } from "@/smart-contracts/abi";
+import { useCreateTokenOnchain } from "@/hooks/use-create-token-onchain";
 
 const formSchema = z.object({
   tokenName: z.string().min(1, "Token name is required"),
@@ -60,9 +56,7 @@ export function CreateTokenForm() {
   const bannerError = form.formState.errors.banner;
 
   const { address, chain } = useAccount();
-  const { writeContractAsync } = useWriteContract();
-  const createTokenMutation = useTaxFarmControllerUpsert();
-  const wagmiConfig = useConfig();
+  const createTokenMutation = useCreateTokenOnchain();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -75,35 +69,15 @@ export function CreateTokenForm() {
     NiceModal.show(ModalDeployingToken);
 
     try {
-      const txResult = await simulateContract(wagmiConfig, {
-        abi: TokenFactoryV2Abi,
-        address: TOKEN_FACTORY_ADDRESS[chain.id],
-        functionName: "deployToken",
-        args: [values.tokenName, values.tokenSymbol],
-        value: chain.testnet ? parseEther("0.01") : parseEther("1"),
-      });
-
-      const txHash = await writeContractAsync({
-        abi: TokenFactoryV2Abi,
-        functionName: "deployToken",
-        address: TOKEN_FACTORY_ADDRESS[chain.id],
-        account: address,
-        args: [values.tokenName, values.tokenSymbol],
-        value: chain.testnet ? parseEther("0.01") : parseEther("1"),
-      });
-
-      await waitForTransactionReceipt(wagmiConfig, { hash: txHash });
-
-      createTokenMutation.mutateAsync({
-        data: {
-          tokenAddress: txResult.result,
-          logo: values.logo || "",
-          banner: values.banner || "",
-          description: values.description || "",
-          website: values.website || "",
-          telegram: values.telegram || "",
-          X: values.twitter || "",
-        },
+      await createTokenMutation.mutateAsync({
+        tokenName: values.tokenName,
+        tokenSymbol: values.tokenSymbol,
+        logo: values.logo || "",
+        banner: values.banner || "",
+        description: values.description || "",
+        website: values.website || "",
+        telegram: values.telegram || "",
+        twitter: values.twitter || "",
       });
 
       NiceModal.hide(ModalDeployingToken);
@@ -354,12 +328,12 @@ export function CreateTokenForm() {
                 )}
               />
             </div>
-            <div className="text-sm md:text-base text-app-white">
+            {/* <div className="text-sm md:text-base text-app-white">
               Only pay gas fees and the initial{" "}
               <span className="text-primary">1 ETH</span> for the liquidity
               which will be returned to you in less than{" "}
               <span className="text-primary">24 hours</span>.
-            </div>
+            </div> */}
             <Button
               type="submit"
               loading={isSubmitting}

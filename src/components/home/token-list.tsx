@@ -1,13 +1,13 @@
-import { useState, useCallback, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { TokenCard } from "@/components/shared/token-card";
 import { IconChevronDown } from "@/components/icons";
-import type { TaxFarmResponse } from "@/services/models";
 import { Empty } from "@/components/shared/empty";
+import { TokenCard } from "@/components/shared/token-card";
+import { Button } from "@/components/ui/button";
+import type { MemeResponse } from "@/services/models";
+import { useCallback, useEffect, useState } from "react";
 
-export const TokenList = ({ tokens }: { tokens: TaxFarmResponse[] }) => {
+export const TokenList = ({ tokens }: { tokens: readonly MemeResponse[] }) => {
   const itemsPerLoad = 6;
-  const [displayedTokens, setDisplayedTokens] = useState<TaxFarmResponse[]>([]);
+  const [displayedTokens, setDisplayedTokens] = useState<MemeResponse[]>([]);
 
   useEffect(() => {
     setDisplayedTokens(tokens.slice(0, itemsPerLoad));

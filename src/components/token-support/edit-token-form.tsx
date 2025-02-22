@@ -1,15 +1,20 @@
-import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import { useEffect } from "react";
 import { get } from "es-toolkit/compat";
+import { useEffect } from "react";
+import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import * as z from "zod";
 
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import {
+  IconGradientBox,
+  IconMagicWand,
+  IconTelegram,
+  IconWebsite,
+  IconX,
+} from "@/components/icons";
+import { ToastCard } from "@/components/shared/toast-card";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
 import {
   Form,
   FormControl,
@@ -19,16 +24,11 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { ImageUploader } from "@/components/ui/image-uploader";
-import {
-  IconGradientBox,
-  IconMagicWand,
-  IconTelegram,
-  IconWebsite,
-  IconX,
-} from "@/components/icons";
-import { useTaxFarmControllerFindOne, useTaxFarmControllerUpdate } from "@/services/queries";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+// import { useTaxFarmControllerFindOne, useTaxFarmControllerUpdate } from "@/services/queries";
 import { isObjectEmpty } from "@/lib/utils";
-import { ToastCard } from "@/components/shared/toast-card";
 
 const formSchema = z.object({
   tokenAddress: z.string().min(1, "Token address is required"),
@@ -63,24 +63,40 @@ export function EditTokenForm() {
   const tokenAddress = form.watch("tokenAddress");
   const logoError = form.formState.errors.logo;
   const bannerError = form.formState.errors.banner;
-  const isFormValid = form.formState.isValid && isObjectEmpty(form.formState.errors);
+  const isFormValid =
+    form.formState.isValid && isObjectEmpty(form.formState.errors);
 
-  const { data: projectInformationResponse, isFetched } = useTaxFarmControllerFindOne(
-    tokenAddress,
+  // const { data: projectInformationResponse, isFetched } = useTaxFarmControllerFindOne(
+  //   tokenAddress,
+  //   {
+  //     query: {
+  //       enabled: !!tokenAddress,
+  //     },
+  //   },
+  // );
+  const projectInformation = get(
     {
-      query: {
-        enabled: !!tokenAddress,
+      data: {
+        tokenAddress: "",
+        symbol: "",
+        name: "",
+        logo: "",
+        banner: "",
+        description: "",
+        website: "",
+        telegram: "",
+        X: "",
       },
     },
+    "data"
   );
-  const projectInformation = get(projectInformationResponse, "data");
 
-  const updateToken = useTaxFarmControllerUpdate();
+  // const updateToken = useTaxFarmControllerUpdate();
 
   useEffect(() => {
     if (projectInformation) {
       form.setValue("symbol", projectInformation.symbol);
-      form.setValue("name", projectInformation.tokenName);
+      form.setValue("name", projectInformation.name);
       form.setValue("logo", projectInformation.logo);
       form.setValue("banner", projectInformation.banner);
       form.setValue("description", projectInformation.description);
@@ -90,15 +106,15 @@ export function EditTokenForm() {
     }
   }, [projectInformation, form.setValue]);
 
-  useEffect(() => {
-    if (!isFetched) return;
+  // useEffect(() => {
+  //   if (!isFetched) return;
 
-    if (!projectInformation) {
-      form.setError("tokenAddress", { message: "Token not found" });
-    } else {
-      form.clearErrors("tokenAddress");
-    }
-  }, [isFetched, projectInformation, form.setError, form.clearErrors]);
+  //   if (!projectInformation) {
+  //     form.setError("tokenAddress", { message: "Token not found" });
+  //   } else {
+  //     form.clearErrors("tokenAddress");
+  //   }
+  // }, [isFetched, projectInformation, form.setError, form.clearErrors]);
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     if (!isFormValid || !projectInformation) {
@@ -106,16 +122,20 @@ export function EditTokenForm() {
     }
 
     try {
-      await updateToken.mutateAsync({
-        data: {
-          ...values,
-          tokenAddress: projectInformation.tokenAddress,
-        },
-      });
+      // await updateToken.mutateAsync({
+      //   data: {
+      //     ...values,
+      //     tokenAddress: projectInformation.tokenAddress,
+      //   },
+      // });
 
-      toast.custom((t) => <ToastCard variant="success" title="Token updated" toastId={t} />);
+      toast.custom((t) => (
+        <ToastCard variant="success" title="Token updated" toastId={t} />
+      ));
     } catch {
-      toast.custom((t) => <ToastCard variant="error" title="Failed to update token" toastId={t} />);
+      toast.custom((t) => (
+        <ToastCard variant="error" title="Failed to update token" toastId={t} />
+      ));
     }
   }
 
@@ -198,7 +218,8 @@ export function EditTokenForm() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>
-                    Description <span className="text-white/60">(Optional)</span>
+                    Description{" "}
+                    <span className="text-white/60">(Optional)</span>
                   </FormLabel>
                   <FormControl>
                     <Textarea
@@ -212,14 +233,19 @@ export function EditTokenForm() {
               )}
             />
             <div className="flex flex-col">
-              <h3 className="text-[24px] text-app-white font-semibold mb-2">Upload</h3>
+              <h3 className="text-[24px] text-app-white font-semibold mb-2">
+                Upload
+              </h3>
               <p className="text-app-gray text-xs md:text-base mb-6">
                 Define your token's identity with a custom logo and banner.
               </p>
               <div className="flex flex-col md:flex-row gap-6">
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <Label htmlFor="logo" className="text-sm text-app-white font-normal">
+                    <Label
+                      htmlFor="logo"
+                      className="text-sm text-app-white font-normal"
+                    >
                       Token Logo
                     </Label>
                     {logo && (
@@ -255,7 +281,10 @@ export function EditTokenForm() {
                 </div>
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <Label htmlFor="banner" className="text-sm text-app-white font-normal">
+                    <Label
+                      htmlFor="banner"
+                      className="text-sm text-app-white font-normal"
+                    >
                       Add a Banner to Stand Out
                     </Label>
                     {banner && (
@@ -287,13 +316,17 @@ export function EditTokenForm() {
                       }}
                     />
                   )}
-                  {bannerError && <FormMessage>{bannerError.message}</FormMessage>}
+                  {bannerError && (
+                    <FormMessage>{bannerError.message}</FormMessage>
+                  )}
                 </div>
               </div>
             </div>
             <div className="border-b border-white/[0.05] my-8 w-full h-[1px]" />
             <div className="flex flex-col">
-              <h3 className="text-[24px] text-app-white font-semibold mb-2">Social Links</h3>
+              <h3 className="text-[24px] text-app-white font-semibold mb-2">
+                Social Links
+              </h3>
               <p className="text-app-gray text-xs md:text-base mb-6">
                 Connect your token to the world through your social platforms.
               </p>
@@ -365,8 +398,8 @@ export function EditTokenForm() {
               />
             </div>
             <div className="text-sm md:text-base text-app-white">
-              If your token isn’t visible on the website after 5min, you can manually setup your
-              token page.
+              If your token isn’t visible on the website after 5min, you can
+              manually setup your token page.
             </div>
             <Button
               type="submit"

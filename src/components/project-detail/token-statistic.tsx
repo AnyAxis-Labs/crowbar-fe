@@ -28,10 +28,10 @@ import {
 import { toCurrency } from "@/lib/number";
 import { getTimeDifference, padZero } from "@/lib/utils";
 import type { TaxFarmResponse } from "@/services/models";
-import {
-  getTaxFarmControllerFindOneQueryKey,
-  useTaxFarmControllerUpdate,
-} from "@/services/queries";
+// import {
+//   getTaxFarmControllerFindOneQueryKey,
+//   useTaxFarmControllerUpdate,
+// } from "@/services/queries";
 import { TokenFactoryV2Abi } from "@/smart-contracts/abi";
 
 export const TokenStatistic = ({ project }: { project: TaxFarmResponse }) => {
@@ -41,8 +41,8 @@ export const TokenStatistic = ({ project }: { project: TaxFarmResponse }) => {
   const { address } = useAccount();
   const { writeContractAsync } = useWriteContract();
   const config = useConfig();
-  const updateProject = useTaxFarmControllerUpdate();
-  const queryClient = useQueryClient();
+  // const updateProject = useTaxFarmControllerUpdate();
+  // const queryClient = useQueryClient();
   const currentChainConfig = config.chains.find(
     (chain) => chain.id === chainId
   );
@@ -93,15 +93,15 @@ export const TokenStatistic = ({ project }: { project: TaxFarmResponse }) => {
         args: [project.tokenAddress],
       });
       await waitForTransactionReceipt(config, { hash: txHash });
-      await updateProject.mutateAsync({
-        data: {
-          txWithdraw: txHash,
-          tokenAddress: project.tokenAddress,
-        },
-      });
-      await queryClient.invalidateQueries({
-        queryKey: getTaxFarmControllerFindOneQueryKey(project.tokenAddress),
-      });
+      // await updateProject.mutateAsync({
+      //   data: {
+      //     txWithdraw: txHash,
+      //     tokenAddress: project.tokenAddress,
+      //   },
+      // });
+      // await queryClient.invalidateQueries({
+      //   queryKey: getTaxFarmControllerFindOneQueryKey(project.tokenAddress),
+      // });
       NiceModal.hide(ModalProcessing);
       NiceModal.show(ModalSuccess);
     } catch (error) {

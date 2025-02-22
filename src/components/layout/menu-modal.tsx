@@ -1,23 +1,23 @@
 import NiceModal, { useModal } from "@ebay/nice-modal-react";
-import { Link, useNavigate } from "@tanstack/react-router";
-import { useAccount, useDisconnect } from "wagmi";
-import { useWeb3Modal } from "@web3modal/wagmi/react";
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { useWeb3Modal } from "@web3modal/wagmi/react";
+import { useAccount, useDisconnect } from "wagmi";
 
-import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import {
   IconChevronRight,
   IconClose,
   IconLink,
   IconLogoIcon,
-  IconUniSymbol,
   IconTelegram,
+  IconUniSymbol,
   IconWallet,
   IconX,
 } from "@/components/icons";
 import ModalTutorial from "@/components/shared/modal-tutorial";
 import { UserAvatar } from "@/components/shared/user-avatar";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { headAddress, shortAddress } from "@/lib/utils";
 import { DialogTitle } from "@radix-ui/react-dialog";
 
@@ -30,10 +30,10 @@ export const ModalMenu = NiceModal.create(() => {
 
   const menuItems = [
     { name: "Home", path: "/" },
-    { name: "Staking", path: "/staking" },
-    { name: "Token Support", path: "/token-support" },
-    { name: "Doc", path: "https://docs.planetverse.io" },
-    { name: "Tutorial", path: "#tutorial" },
+    // { name: "Staking", path: "/staking" },
+    // { name: "Token Support", path: "/token-support" },
+    // { name: "Doc", path: "https://docs.planetverse.io" },
+    // { name: "Tutorial", path: "#tutorial" },
   ];
 
   return (
@@ -45,7 +45,6 @@ export const ModalMenu = NiceModal.create(() => {
         <div className="flex items-center justify-between">
           <div className="flex items-center">
             <IconLogoIcon className="h-11 w-11 text-primary" />
-            <IconUniSymbol className="ml-3 h-11 w-[124px] text-primary" />
           </div>
 
           <Button
@@ -62,15 +61,21 @@ export const ModalMenu = NiceModal.create(() => {
             <UserAvatar name={address} />
 
             <div className="flex flex-col gap-1 flex-1">
-              <span className="text-sm font-semibold text-app-white">{headAddress(address)}</span>
-              <span className="text-xs text-primary">{shortAddress(address)}</span>
+              <span className="text-sm font-semibold text-app-white">
+                {headAddress(address)}
+              </span>
+              <span className="text-xs text-primary">
+                {shortAddress(address)}
+              </span>
             </div>
 
             <Button
               variant="ghost"
               size="icon"
               className="w-8 h-8 mr-2"
-              onClick={() => navigate({ to: "/profile/$id", params: { id: address } })}
+              onClick={() =>
+                navigate({ to: "/profile/$id", params: { id: address } })
+              }
             >
               <IconChevronRight className="w-6 h-auto text-app-white" />
             </Button>
@@ -79,7 +84,10 @@ export const ModalMenu = NiceModal.create(() => {
 
         <div className="mt-3 mb-8 flex flex-col gap-2">
           {menuItems.map((item) => (
-            <div key={item.name} className="py-3 text-foreground text-base font-semibold">
+            <div
+              key={item.name}
+              className="py-3 text-foreground text-base font-semibold"
+            >
               {item.path.startsWith("http") ? (
                 <a href={item.path} target="_blank" rel="noreferrer">
                   {item.name}

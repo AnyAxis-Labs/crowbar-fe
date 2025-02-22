@@ -6,6 +6,8 @@ import TokenProxy from "./TokenProxy.json";
 import TokenStaking from "./TokenStaking.json";
 import UniswapV2Router02 from "./IUniswapV2Router02.json";
 import UniswapV2Pair from "./UniswapV2Pair.json";
+export * from "./MemeFactory";
+export * from "./Meme";
 
 export const TokenFactoryV2Abi = TokenFactoryV2.abi;
 export const TokenLogicV2Abi = TokenLogicV2.abi;

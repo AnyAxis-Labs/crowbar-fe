@@ -1,5 +1,6 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { customAlphabet } from "nanoid";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -18,12 +19,12 @@ export const formatImageUrl = (url?: string) => {
     return "";
   }
 
-  // if (!url.startsWith("https://")) {
-  //   const cleanedUrl = url.replace("/api/file-upload/", "");
-  //   const baseUrl = `${import.meta.env.VITE_API_URL}api/file-upload/`;
+  if (!url.startsWith("https://")) {
+    const cleanedUrl = url.replace("/api/file-upload/", "");
+    const baseUrl = "/api/file-upload/";
 
-  //   return baseUrl + cleanedUrl;
-  // }
+    return baseUrl + cleanedUrl;
+  }
 
   return url;
 };
@@ -99,3 +100,5 @@ export const loopAsync = async (
     await sleep(delays);
   }
 };
+
+export const generateTokenId = customAlphabet("1234567890", 32);
