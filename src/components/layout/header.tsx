@@ -68,7 +68,11 @@ function HeaderMarquee() {
             <span className="text-primary-light font-semibold text-sm leading-[20px] tracking-[0.07px]">
               {item.symbol}
             </span>
-            <ImageWithFallback src={item.logo} alt="logo" className="w-5 h-5 rounded-full" />
+            <ImageWithFallback
+              src={item.logo}
+              alt="logo"
+              className="w-5 h-5 rounded-full"
+            />
           </div>
         ))}
       </Marquee>
@@ -85,15 +89,17 @@ function Header() {
   const { disconnect } = useDisconnect();
 
   const isRouteActive = (path: string) => {
-    return path.startsWith("/") && path.split("/")[1] === pathname.split("/")[1];
+    return (
+      path.startsWith("/") && path.split("/")[1] === pathname.split("/")[1]
+    );
   };
 
   const menuItems = [
     { name: "Home", path: "/" },
-    { name: "Staking", path: "/staking" },
+    // { name: "Staking", path: "/staking" },
     { name: "Token Support", path: "/token-support" },
-    { name: "Doc", path: "https://docs.planetverse.io" },
-    { name: "Tutorial", path: "#tutorial" },
+    // { name: "Doc", path: "https://docs.planetverse.io" },
+    // { name: "Tutorial", path: "#tutorial" },
   ];
 
   return (
@@ -114,7 +120,7 @@ function Header() {
                   key={item.name}
                   className={cn(
                     "bg-transparent rounded-[16px] py-2 px-4 text-white/40",
-                    isRouteActive(item.path) && "text-primary bg-white/[0.05]",
+                    isRouteActive(item.path) && "text-primary bg-white/[0.05]"
                   )}
                 >
                   {item.path.startsWith("http") ? (
@@ -137,7 +143,10 @@ function Header() {
                       {item.name}
                     </a>
                   ) : (
-                    <Link to={item.path} className="text-inherit text-sm leading-[20px]">
+                    <Link
+                      to={item.path}
+                      className="text-inherit text-sm leading-[20px]"
+                    >
                       {item.name}
                     </Link>
                   )}

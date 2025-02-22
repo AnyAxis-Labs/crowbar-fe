@@ -12,7 +12,6 @@
 
 import { Route as rootRoute } from './routes/__root'
 import { Route as TokenSupportImport } from './routes/token-support'
-import { Route as StakingImport } from './routes/staking'
 import { Route as CreateTokenImport } from './routes/create-token'
 import { Route as IndexImport } from './routes/index'
 import { Route as ProjectIdImport } from './routes/project.$id'
@@ -22,11 +21,6 @@ import { Route as ProfileIdImport } from './routes/profile.$id'
 
 const TokenSupportRoute = TokenSupportImport.update({
   path: '/token-support',
-  getParentRoute: () => rootRoute,
-} as any)
-
-const StakingRoute = StakingImport.update({
-  path: '/staking',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -68,13 +62,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CreateTokenImport
       parentRoute: typeof rootRoute
     }
-    '/staking': {
-      id: '/staking'
-      path: '/staking'
-      fullPath: '/staking'
-      preLoaderRoute: typeof StakingImport
-      parentRoute: typeof rootRoute
-    }
     '/token-support': {
       id: '/token-support'
       path: '/token-support'
@@ -104,7 +91,6 @@ declare module '@tanstack/react-router' {
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/create-token': typeof CreateTokenRoute
-  '/staking': typeof StakingRoute
   '/token-support': typeof TokenSupportRoute
   '/profile/$id': typeof ProfileIdRoute
   '/project/$id': typeof ProjectIdRoute
@@ -113,7 +99,6 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/create-token': typeof CreateTokenRoute
-  '/staking': typeof StakingRoute
   '/token-support': typeof TokenSupportRoute
   '/profile/$id': typeof ProfileIdRoute
   '/project/$id': typeof ProjectIdRoute
@@ -123,7 +108,6 @@ export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
   '/create-token': typeof CreateTokenRoute
-  '/staking': typeof StakingRoute
   '/token-support': typeof TokenSupportRoute
   '/profile/$id': typeof ProfileIdRoute
   '/project/$id': typeof ProjectIdRoute
@@ -134,23 +118,15 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/create-token'
-    | '/staking'
     | '/token-support'
     | '/profile/$id'
     | '/project/$id'
   fileRoutesByTo: FileRoutesByTo
-  to:
-    | '/'
-    | '/create-token'
-    | '/staking'
-    | '/token-support'
-    | '/profile/$id'
-    | '/project/$id'
+  to: '/' | '/create-token' | '/token-support' | '/profile/$id' | '/project/$id'
   id:
     | '__root__'
     | '/'
     | '/create-token'
-    | '/staking'
     | '/token-support'
     | '/profile/$id'
     | '/project/$id'
@@ -160,7 +136,6 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CreateTokenRoute: typeof CreateTokenRoute
-  StakingRoute: typeof StakingRoute
   TokenSupportRoute: typeof TokenSupportRoute
   ProfileIdRoute: typeof ProfileIdRoute
   ProjectIdRoute: typeof ProjectIdRoute
@@ -169,7 +144,6 @@ export interface RootRouteChildren {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CreateTokenRoute: CreateTokenRoute,
-  StakingRoute: StakingRoute,
   TokenSupportRoute: TokenSupportRoute,
   ProfileIdRoute: ProfileIdRoute,
   ProjectIdRoute: ProjectIdRoute,
@@ -189,7 +163,6 @@ export const routeTree = rootRoute
       "children": [
         "/",
         "/create-token",
-        "/staking",
         "/token-support",
         "/profile/$id",
         "/project/$id"
@@ -200,9 +173,6 @@ export const routeTree = rootRoute
     },
     "/create-token": {
       "filePath": "create-token.tsx"
-    },
-    "/staking": {
-      "filePath": "staking.tsx"
     },
     "/token-support": {
       "filePath": "token-support.tsx"
