@@ -1,12 +1,11 @@
 import NiceModal from "@ebay/nice-modal-react";
 import { useQueryClient } from "@tanstack/react-query";
-import { waitForTransactionReceipt } from "@wagmi/core";
 import BigNumber from "bignumber.js";
 import { get } from "es-toolkit/compat";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import type { Address } from "viem";
-import { useAccount, useBalance, useConfig, useWriteContract } from "wagmi";
+import { useAccount, useBalance } from "wagmi";
 
 import { IconGradientBox, IconSwap, IconUpAndDown } from "@/components/icons";
 import ImageWithFallback from "@/components/shared/image-with-fallback";
@@ -24,23 +23,22 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { useBuyToken } from "@/hooks/use-token-buy";
+import { useTokenQuote } from "@/hooks/use-token-quote";
+import { useSellToken } from "@/hooks/use-token-sell";
 import { useDebounceState } from "@/hooks/useDebounce";
-import { useEstimateAmountOut } from "@/hooks/useEstimateAmountOut";
 import { useGetPairReserves } from "@/hooks/useGetPairReserves";
 import { useTokenBalance } from "@/hooks/useTokenBalance";
 import {
   BURN_TOKEN_SOFT_CAP,
   DEFAULT_CHAIN,
   SONIC_IMAGE,
-  UNISWAP_V2_ROUTER_ADDRESS,
   WRAPPED_SONIC_ADDRESS,
 } from "@/lib/constants";
 import { createRules, rules } from "@/lib/form";
-import { fromDecimals, toBigInt, toCurrency, toDecimals } from "@/lib/number";
+import { fromDecimals, toCurrency } from "@/lib/number";
 import { cn, isObjectEmpty, loopAsync } from "@/lib/utils";
 import type { MemeResponse } from "@/services/models";
-import { TokenContract } from "@/smart-contracts/TokenContract";
-import { UniswapV2RouterAbi } from "@/smart-contracts/abi";
 import { getMemeControllerFindDetailQueryKey } from "@/services/queries";
 
 interface SwapFormSchema {
@@ -119,9 +117,8 @@ export const SwapForm = ({ project }: { project: MemeResponse }) => {
     .multipliedBy(100)
     .toNumber();
   const debouncedFromAmount = useDebounceState(fromAmount, 500);
-
-  const config = useConfig();
-  const { writeContractAsync } = useWriteContract();
+  const buyToken = useBuyToken(project.tokenAddress);
+  const sellToken = useSellToken(project.tokenAddress);
   const { data: ethBalanceInWei = { value: 0n }, refetch: refetchEthBalance } =
     useBalance({
       address,
@@ -156,21 +153,22 @@ export const SwapForm = ({ project }: { project: MemeResponse }) => {
     pairReserves,
     chainId,
   });
+  const isBuy = toToken === project.tokenAddress;
 
   const {
-    data: expectedAmountOutInWei,
+    data: quoteData = { amountOut: "0" },
     isFetching: isFetchingExpectedAmountOut,
-  } = useEstimateAmountOut({
-    amountIn: toBigInt(toDecimals(debouncedFromAmount)),
-    reserveIn: fromTokenInfo.reserve,
-    reserveOut: toTokenInfo.reserve,
+  } = useTokenQuote({
+    memeAddress: project.tokenAddress,
+    amountIn: debouncedFromAmount,
+    isBuy,
   });
 
   useEffect(() => {
     const expectedAmountOut =
-      fromDecimals(expectedAmountOutInWei.toString()) || "";
+      fromDecimals(quoteData.amountOut.toString()) || "";
     form.setValue("toAmount", expectedAmountOut);
-  }, [expectedAmountOutInWei, form.setValue]);
+  }, [quoteData, form.setValue]);
 
   const swapInputToken = () => {
     const newFromToken = toToken;
@@ -185,61 +183,17 @@ export const SwapForm = ({ project }: { project: MemeResponse }) => {
 
       NiceModal.show(ModalProcessing);
 
-      const isFromNative = Object.values(WRAPPED_SONIC_ADDRESS).includes(
-        fromToken as Address
-      );
-
-      let approved = false;
-      if (!isFromNative) {
-        approved = await TokenContract.approve({
-          scAddress: fromToken as Address,
-          account: address as Address,
-          spenderAddress: UNISWAP_V2_ROUTER_ADDRESS[chainId || DEFAULT_CHAIN],
-          amount: toBigInt(toDecimals(values.fromAmount, 18)),
+      if (isBuy) {
+        await buyToken.mutateAsync({
+          amount: debouncedFromAmount,
+          minimumReceive: values.toAmount,
         });
       } else {
-        approved = true;
-      }
-
-      if (!approved) {
-        throw new Error("Approve failed");
-      }
-
-      let txHash: Address | undefined;
-      const minAmountOut = BigNumber(expectedAmountOutInWei.toString())
-        .multipliedBy(100 - values.slippage)
-        .div(100)
-        .toFixed(0);
-
-      if (isFromNative) {
-        txHash = await writeContractAsync({
-          abi: UniswapV2RouterAbi,
-          functionName: "swapExactETHForTokensSupportingFeeOnTransferTokens",
-          address: UNISWAP_V2_ROUTER_ADDRESS[chainId || DEFAULT_CHAIN],
-          value: toBigInt(toDecimals(values.fromAmount)),
-          args: [
-            minAmountOut,
-            [fromToken, toToken],
-            address,
-            BigInt(Date.now() + 1000 * 60 * 10), // deadline
-          ],
-        });
-      } else {
-        txHash = await writeContractAsync({
-          abi: UniswapV2RouterAbi,
-          functionName: "swapExactTokensForETHSupportingFeeOnTransferTokens",
-          address: UNISWAP_V2_ROUTER_ADDRESS[chainId || DEFAULT_CHAIN],
-          args: [
-            toBigInt(toDecimals(values.fromAmount)),
-            minAmountOut,
-            [fromToken, toToken],
-            address,
-            BigInt(Date.now() + 1000 * 60 * 10), // deadline
-          ],
+        await sellToken.mutateAsync({
+          amountIn: debouncedFromAmount,
+          minimumReceive: values.toAmount,
         });
       }
-
-      await waitForTransactionReceipt(config, { hash: txHash });
 
       NiceModal.hide(ModalProcessing);
       NiceModal.show(ModalSuccess);
