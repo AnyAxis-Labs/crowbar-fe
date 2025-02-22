@@ -23,6 +23,7 @@ import { BURN_TOKEN_SOFT_CAP } from "@/lib/constants";
 import { abbreviateNumber, toCurrency } from "@/lib/number";
 import { cn, headAddress, shortAddress } from "@/lib/utils";
 import type { MemeResponse } from "@/services/models";
+import { PriceChart } from "./price-chart";
 
 export const ProjectInfoCard = ({ project }: { project: MemeResponse }) => {
   const { copyToClipboard } = useCopyToClipboard();
@@ -33,13 +34,6 @@ export const ProjectInfoCard = ({ project }: { project: MemeResponse }) => {
   const marketCap = get(project, "marketCap", 0);
   const priceCurrent = get(project, "priceCurrent", 0);
   const priceLast5m = get(project, "priceLast5m", 0);
-
-  const { data: dexScreenerAddress } = useGetDexScreenerPairAddress([
-    // project.tokenAddress,
-    // WRAPPED_ETH_ADDRESS[chainId],
-    "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
-    "0xdAC17F958D2ee523a2206206994597C13D831ec7",
-  ]);
 
   const revenueInUsd = BigNumber(revenue).multipliedBy(ethPrice).toString();
   const marketCapInUsd = BigNumber(marketCap).multipliedBy(ethPrice);
@@ -194,7 +188,7 @@ export const ProjectInfoCard = ({ project }: { project: MemeResponse }) => {
         </div>
 
         <div className="w-full h-[460px] bg-background overflow-hidden rounded-[16px] mt-6">
-          {dexScreenerAddress ? (
+          {/* {dexScreenerAddress ? (
             <iframe
               src={`https://dexscreener.com/ethereum/${dexScreenerAddress}?embed=1&theme=dark&trades=0&info=0`}
               className="w-full h-full"
@@ -204,7 +198,14 @@ export const ProjectInfoCard = ({ project }: { project: MemeResponse }) => {
             <div className="w-full h-full flex items-center justify-center">
               <span className="text-sm text-foreground">No data available</span>
             </div>
-          )}
+          )} */}
+          <PriceChart
+            className="mt-4"
+            symbol={project.symbol}
+            funId={project.tokenAddress}
+            status={project.status}
+            pairAddress={project.pairAddress}
+          />
         </div>
       </CardContent>
     </Card>

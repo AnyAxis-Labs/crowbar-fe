@@ -33,7 +33,6 @@ import {
   DEFAULT_CHAIN,
   SONIC_IMAGE,
   UNISWAP_V2_ROUTER_ADDRESS,
-  WRAPPED_ETH_ADDRESS,
   WRAPPED_SONIC_ADDRESS,
 } from "@/lib/constants";
 import { createRules, rules } from "@/lib/form";
@@ -67,7 +66,7 @@ const getTokenInformation = ({
   pairReserves,
   chainId,
 }: TokenInfoParams) => {
-  const isNative = Object.values(WRAPPED_ETH_ADDRESS).includes(
+  const isNative = Object.values(WRAPPED_SONIC_ADDRESS).includes(
     tokenAddress as Address
   );
 
@@ -76,7 +75,7 @@ const getTokenInformation = ({
       name: "SONIC",
       symbol: "S",
       decimals: 18,
-      address: WRAPPED_ETH_ADDRESS[chainId || DEFAULT_CHAIN],
+      address: WRAPPED_SONIC_ADDRESS[chainId || DEFAULT_CHAIN],
       logo: SONIC_IMAGE,
       reserve: pairReserves.ethReserve,
       balance: fromDecimals(balances.ethBalance.toString(), 18),
@@ -186,7 +185,7 @@ export const SwapForm = ({ project }: { project: MemeResponse }) => {
 
       NiceModal.show(ModalProcessing);
 
-      const isFromNative = Object.values(WRAPPED_ETH_ADDRESS).includes(
+      const isFromNative = Object.values(WRAPPED_SONIC_ADDRESS).includes(
         fromToken as Address
       );
 
@@ -247,7 +246,7 @@ export const SwapForm = ({ project }: { project: MemeResponse }) => {
       form.reset({
         fromAmount: "0",
         toAmount: "0",
-        fromToken: WRAPPED_ETH_ADDRESS[chainId || DEFAULT_CHAIN],
+        fromToken: WRAPPED_SONIC_ADDRESS[chainId || DEFAULT_CHAIN],
         toToken: project.tokenAddress,
       });
       loopAsync(

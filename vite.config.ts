@@ -47,6 +47,12 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ""),
       },
+      "/socket.io/": {
+        target: "http://api-sonic-dev.nysm.work",
+        changeOrigin: true,
+        secure: false,
+        ws: true,
+      },
     },
   },
 });

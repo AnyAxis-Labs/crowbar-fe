@@ -1,3 +1,7 @@
+declare module "@/public/static/charting_library/charting_library.esm" {
+  export * from "@/public/static/charting_library/charting_library";
+}
+
 export type HomeFilter = "bonding-curve" | "dex-listed";
 export type SortBy = "creation-time" | "trading-volume" | "market-cap";
 export type SortOrder = "ASC" | "DESC";

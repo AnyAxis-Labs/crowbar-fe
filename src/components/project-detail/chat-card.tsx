@@ -60,6 +60,8 @@ export const ChatCard = ({ hash }: ChatCardProps) => {
     useCommentControllerGetPagination(
       {
         tokenAddress: hash,
+        page: 1,
+        pageSize: 10000,
       },
       {
         query: {
