@@ -110,7 +110,7 @@ function Header() {
     // { name: "Staking", path: "/staking" },
     // { name: "Token Support", path: "/token-support" },
     // { name: "Doc", path: "https://docs.planetverse.io" },
-    // { name: "Tutorial", path: "#tutorial" },
+    { name: "Tutorial", path: "#tutorial" },
   ];
 
   return (

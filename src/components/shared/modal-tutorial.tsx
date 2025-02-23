@@ -1,6 +1,11 @@
 import NiceModal, { useModal } from "@ebay/nice-modal-react";
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { IconRocket } from "@/components/icons";
 
@@ -19,34 +24,42 @@ const ModalTutorial = NiceModal.create(() => {
 
         <div className="space-y-4 text-sm text-foreground">
           <p>
-            UNI ensures optimal security for buyers while offering unique protection for token
-            creators:
+            Crowbar.so enables game developers to launch and monetize their
+            games through an AI-powered token launchpad built on Sonic
+            blockchain. Players can use the G@M3 token standard to participate
+            in games, stake, and train AI agents.
           </p>
           <ul className="list-disc pl-6 space-y-1">
             <li>
-              Each coin is a fair-launch with{" "}
-              <span className="text-primary">no presale and team allocation</span>.
+              <span className="text-primary">Step 1:</span> Launch a Game Token
+              - Create your G@M3 token through our launchpad, set fundraising
+              rules, and migrate liquidity via Shadow Exchange.
             </li>
             <li>
-              Deploy for <span className="text-primary">2x less</span> a token thanks to our
-              optimized contracts.
+              <span className="text-primary">Step 2:</span> Join a Game -
+              Players can stake tokens for 1 month to get NFTs or buy at 2x
+              price (half for liquidity, half burned).
             </li>
             <li>
-              <span className="text-primary">20%</span> of the supply is clogged to refund and pay
-              the creator.
+              <span className="text-primary">Step 3:</span> Play with AI
+              Assistance - AI agents analyze gameplay, suggest optimal moves,
+              and track opponents in real-time.
+            </li>
+            <li>
+              <span className="text-primary">Step 4:</span> Earn Rewards -
+              Winners claim 99% of prize pools, 1% is burned. Players can mint
+              and train AI agent NFTs.
+            </li>
+            <li>
+              <span className="text-primary">Step 5:</span> Trade & Grow - G@M3
+              tokens are listed on Shadow Exchange with liquidity managed via
+              Zerepy Framework.
             </li>
           </ul>
-          <p>
-            If the token generates enough fees to refund at least{" "}
-            <span className="text-primary">1 ETH</span> to the creator (the initial liquidity
-            provided), the token remains in <span className="text-primary">5/5 tax mode</span> until
-            the unclog is complete, after which the taxes drop to{" "}
-            <span className="text-primary">0/0</span>.
-          </p>
-          <p>
-            If the token does not generate enough fees within{" "}
-            <span className="text-primary">24 hours</span>, the liquidity is withdrawn and sent back
-            to the creator's wallet.
+          <p className="mt-4">
+            By using Crowbar.so, developers and players access an AI-driven,
+            sustainable gaming economy powered by the G@M3 token standard on
+            Sonic blockchain.
           </p>
         </div>
         <Button
