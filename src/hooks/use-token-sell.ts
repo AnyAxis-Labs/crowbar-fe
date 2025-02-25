@@ -3,6 +3,7 @@ import { useMutation } from "@tanstack/react-query";
 import { waitForTransactionReceipt } from "@wagmi/core";
 import { parseEther } from "viem";
 import { useAccount, useConfig, useWriteContract } from "wagmi";
+import { usePumpContract } from "./use-pump-contract";
 import { useTokenApproval } from "./use-token-approval";
 
 interface SellTokenParams {
@@ -14,10 +15,10 @@ export function useSellToken(memeAddress: string) {
   const config = useConfig();
   const { address: userAddress } = useAccount();
   const { writeContractAsync } = useWriteContract();
-  // First check and handle token approval
+  const { data: pumpContract } = usePumpContract(memeAddress);
   const { checkNeedsApproval, approve } = useTokenApproval(
     memeAddress,
-    memeAddress
+    pumpContract
   );
 
   return useMutation({
@@ -26,9 +27,13 @@ export function useSellToken(memeAddress: string) {
         throw new Error("User address not found");
       }
 
+      if (!pumpContract) {
+        throw new Error("Pump contract not found");
+      }
+
       const { amountIn, minimumReceive } = params;
 
-      // // Check if approval is needed
+      // Check if approval is needed
       if (checkNeedsApproval(parseEther(amountIn))) {
         await approve(parseEther(amountIn));
       }
@@ -36,7 +41,7 @@ export function useSellToken(memeAddress: string) {
       try {
         // Execute the sell transaction
         const hash = await writeContractAsync({
-          address: memeAddress as `0x${string}`,
+          address: pumpContract,
           abi: MemeAbi,
           functionName: "swapExactIn",
           args: [

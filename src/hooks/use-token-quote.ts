@@ -1,6 +1,9 @@
-import { useReadContract } from "wagmi";
+import { TOKEN_FACTORY_ADDRESS } from "@/lib/constants";
+import { MemeAbi, MemeFactoryAbi } from "@/smart-contracts/abi";
+import { useQuery } from "@tanstack/react-query";
+import { readContract } from "@wagmi/core";
 import { parseEther } from "viem";
-import { MemeAbi } from "@/smart-contracts/abi";
+import { useAccount, useConfig } from "wagmi";
 
 interface QuoteResult {
   actualAmountIn: string;
@@ -26,35 +29,37 @@ export function useTokenQuote({
   amountIn,
   isBuy = true,
 }: UseTokenQuoteParams) {
-  const { data, refetch, isFetching, isFetched, error } = useReadContract({
-    address: memeAddress as `0x${string}`,
-    abi: MemeAbi,
-    functionName: "quoteAmountOut",
-    args: [parseEther(amountIn || "0"), isBuy],
-    query: {
-      enabled: Boolean(memeAddress && amountIn),
+  const config = useConfig();
+  const { chainId } = useAccount();
+
+  return useQuery({
+    queryKey: ["token-quote", memeAddress, amountIn, isBuy],
+    queryFn: async () => {
+      if (!chainId) throw new Error("Chain ID is required");
+      if (!memeAddress) throw new Error("Meme address is required");
+
+      const pumpContract = await readContract(config, {
+        address: TOKEN_FACTORY_ADDRESS[chainId],
+        abi: MemeFactoryAbi,
+        functionName: "getPumpContractAddress",
+        args: [memeAddress as `0x${string}`],
+      });
+
+      const quote = await readContract(config, {
+        address: pumpContract as `0x${string}`,
+        abi: MemeAbi,
+        functionName: "quoteAmountOut",
+        args: [parseEther(amountIn || "0"), isBuy],
+      });
+
+      const formattedQuote: QuoteResult = {
+        actualAmountIn: String(quote?.[0] ?? "0"),
+        amountOut: String(quote?.[1] ?? "0"),
+        nativeFee: String(quote?.[2] ?? "0"),
+        refund: String(quote?.[3] ?? "0"),
+      };
+
+      return formattedQuote;
     },
   });
-
-  console.log(
-    memeAddress,
-    parseEther(amountIn || "0"),
-    isBuy,
-    data,
-    isFetched,
-    error
-  );
-
-  const formattedData: QuoteResult = {
-    actualAmountIn: String(data?.[0] ?? "0"),
-    amountOut: String(data?.[1] ?? "0"),
-    nativeFee: String(data?.[2] ?? "0"),
-    refund: String(data?.[3] ?? "0"),
-  };
-
-  return {
-    data: formattedData,
-    refetch,
-    isFetching,
-  };
 }

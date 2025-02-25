@@ -1,8 +1,9 @@
-import { useMutation } from "@tanstack/react-query";
-import { useAccount, useConfig, useWriteContract } from "wagmi";
-import { waitForTransactionReceipt } from "@wagmi/core";
-import { maxUint256, parseEther } from "viem";
 import { MemeAbi } from "@/smart-contracts/abi";
+import { useMutation } from "@tanstack/react-query";
+import { waitForTransactionReceipt } from "@wagmi/core";
+import { parseEther } from "viem";
+import { useAccount, useConfig, useWriteContract } from "wagmi";
+import { usePumpContract } from "./use-pump-contract";
 
 interface BuyTokenParams {
   amount: string; // A8 amount to spend
@@ -16,6 +17,7 @@ export const useBuyToken = (memeAddress: string) => {
   const config = useConfig();
   const { address } = useAccount();
   const { writeContractAsync } = useWriteContract();
+  const { data: pumpContract } = usePumpContract(memeAddress);
 
   return useMutation({
     mutationFn: async (params: BuyTokenParams) => {
@@ -25,10 +27,14 @@ export const useBuyToken = (memeAddress: string) => {
         throw new Error("No address found");
       }
 
+      if (!pumpContract) {
+        throw new Error("Pump contract not found");
+      }
+
       try {
         const amountInWei = parseEther(amount);
         const hash = await writeContractAsync({
-          address: memeAddress as `0x${string}`,
+          address: pumpContract,
           abi: MemeAbi,
           functionName: "swapExactIn",
           args: [
