@@ -48,7 +48,7 @@ const SvgGradientBox = (props: SVGProps<SVGSVGElement>) => (
         height={78.75}
         x={0.625}
         y={1.125}
-        stroke="#ECFFCC"
+        stroke="#ffecd4"
         strokeOpacity={0.16}
         strokeWidth={1.25}
         rx={24.375}
@@ -63,8 +63,8 @@ const SvgGradientBox = (props: SVGProps<SVGSVGElement>) => (
         gradientTransform="rotate(64.495 34.87 39.86)scale(26.9768 33.9468)"
         gradientUnits="userSpaceOnUse"
       >
-        <stop stopColor="#D7FF94" />
-        <stop offset={1} stopColor="#D7FF94" stopOpacity={0} />
+        <stop stopColor="#ffd6a9" />
+        <stop offset={1} stopColor="#ffd6a9" stopOpacity={0} />
       </radialGradient>
       <radialGradient
         id="gradient-box_svg__d"
@@ -74,8 +74,8 @@ const SvgGradientBox = (props: SVGProps<SVGSVGElement>) => (
         gradientTransform="rotate(-90 57.476 34.619)scale(46.6667)"
         gradientUnits="userSpaceOnUse"
       >
-        <stop stopColor="#D7FF94" />
-        <stop offset={1} stopColor="#D7FF94" stopOpacity={0} />
+        <stop stopColor="#ffd6a9" />
+        <stop offset={1} stopColor="#ffd6a9" stopOpacity={0} />
       </radialGradient>
       <linearGradient
         id="gradient-box_svg__b"
@@ -85,8 +85,8 @@ const SvgGradientBox = (props: SVGProps<SVGSVGElement>) => (
         y2={80.5}
         gradientUnits="userSpaceOnUse"
       >
-        <stop offset={0.342} stopColor="#C2FE5E" stopOpacity={0} />
-        <stop offset={1} stopColor="#C2FE5E" />
+        <stop offset={0.342} stopColor="#FC6F13" stopOpacity={0} />
+        <stop offset={1} stopColor="#FC6F13" />
       </linearGradient>
       <filter
         id="gradient-box_svg__a"

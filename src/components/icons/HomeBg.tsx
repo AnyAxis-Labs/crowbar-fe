@@ -13,7 +13,7 @@ const SvgHomeBg = (props: SVGProps<SVGSVGElement>) => (
         cx={647.113}
         cy={226.255}
         r={60.377}
-        fill="#A7FF0E"
+        fill="#FC6F13"
         transform="rotate(16.883 647.113 226.255)"
       />
     </g>
@@ -21,7 +21,7 @@ const SvgHomeBg = (props: SVGProps<SVGSVGElement>) => (
       <ellipse
         cx={297}
         cy={239.175}
-        fill="#A7FF0E"
+        fill="#FC6F13"
         fillOpacity={0.5}
         rx={176.778}
         ry={45.525}
@@ -127,7 +127,7 @@ const SvgHomeBg = (props: SVGProps<SVGSVGElement>) => (
         gradientUnits="userSpaceOnUse"
       >
         <stop offset={0.669} stopColor="#fff" />
-        <stop offset={1} stopColor="#C2FF5D" />
+        <stop offset={1} stopColor="#ffb872" />
       </radialGradient>
       <radialGradient
         id="home-bg_svg__f"
@@ -148,8 +148,8 @@ const SvgHomeBg = (props: SVGProps<SVGSVGElement>) => (
         y2={260.524}
         gradientUnits="userSpaceOnUse"
       >
-        <stop stopColor="#C2FE5E" />
-        <stop offset={1} stopColor="#A2FE03" />
+        <stop stopColor="#FC6F13" />
+        <stop offset={1} stopColor="#fe9039" />
       </linearGradient>
       <linearGradient
         id="home-bg_svg__g"

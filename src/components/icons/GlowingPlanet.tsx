@@ -13,7 +13,7 @@ const SvgGlowingPlanet = (props: SVGProps<SVGSVGElement>) => (
         cx={174.613}
         cy={175.079}
         r={60.377}
-        fill="#A7FF0E"
+        fill="#FC6F13"
         transform="rotate(16.883 174.613 175.079)"
       />
     </g>
@@ -49,7 +49,7 @@ const SvgGlowingPlanet = (props: SVGProps<SVGSVGElement>) => (
         gradientUnits="userSpaceOnUse"
       >
         <stop offset={0.669} stopColor="#fff" />
-        <stop offset={1} stopColor="#C2FF5D" />
+        <stop offset={1} stopColor="#fe9039" />
       </radialGradient>
       <radialGradient
         id="glowing-planet_svg__e"
@@ -70,8 +70,8 @@ const SvgGlowingPlanet = (props: SVGProps<SVGSVGElement>) => (
         y2={209.348}
         gradientUnits="userSpaceOnUse"
       >
-        <stop stopColor="#C2FE5E" />
-        <stop offset={1} stopColor="#A2FE03" />
+        <stop stopColor="#FC6F13" />
+        <stop offset={1} stopColor="#fc6f13" />
       </linearGradient>
       <linearGradient
         id="glowing-planet_svg__f"

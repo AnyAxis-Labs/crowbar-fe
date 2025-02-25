@@ -13,7 +13,7 @@ const SvgCreateTokenBg = (props: SVGProps<SVGSVGElement>) => (
         cx={174.613}
         cy={175.079}
         r={60.377}
-        fill="#A7FF0E"
+        fill="#FC6F13"
         transform="rotate(16.883 174.613 175.079)"
       />
     </g>
@@ -70,7 +70,7 @@ const SvgCreateTokenBg = (props: SVGProps<SVGSVGElement>) => (
         y2={209.348}
         gradientUnits="userSpaceOnUse"
       >
-        <stop stopColor="#C2FE5E" />
+        <stop stopColor="#FC6F13" />
         <stop offset={1} stopColor="#A2FE03" />
       </linearGradient>
       <linearGradient

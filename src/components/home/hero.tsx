@@ -78,7 +78,7 @@ export default function HomeHero() {
                   } as React.CSSProperties
                 }
               />
-              <IconHomeBg className="w-auto h-[450px] md:h-[720px]" />
+              {/* <IconHomeBg className="w-auto h-[450px] md:h-[720px]" /> */}
             </div>
             {/* {stats.map((stat, index) => (
               <GradientCard key={index.toString()}>

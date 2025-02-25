@@ -9,7 +9,7 @@ const SvgClose = (props: SVGProps<SVGSVGElement>) => (
     {...props}
   >
     <g
-      stroke="#BDFE1C"
+      stroke="#EC5409"
       strokeLinecap="round"
       strokeLinejoin="round"
       strokeWidth={2}

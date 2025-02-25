@@ -26,15 +26,24 @@ export function useTokenQuote({
   amountIn,
   isBuy = true,
 }: UseTokenQuoteParams) {
-  const { data, refetch, isFetching } = useReadContract({
+  const { data, refetch, isFetching, isFetched, error } = useReadContract({
     address: memeAddress as `0x${string}`,
     abi: MemeAbi,
     functionName: "quoteAmountOut",
-    args: memeAddress && amountIn ? [parseEther(amountIn), isBuy] : undefined,
+    args: [parseEther(amountIn || "0"), isBuy],
     query: {
       enabled: Boolean(memeAddress && amountIn),
     },
   });
+
+  console.log(
+    memeAddress,
+    parseEther(amountIn || "0"),
+    isBuy,
+    data,
+    isFetched,
+    error
+  );
 
   const formattedData: QuoteResult = {
     actualAmountIn: String(data?.[0] ?? "0"),

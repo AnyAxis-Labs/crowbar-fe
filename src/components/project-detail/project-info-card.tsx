@@ -101,7 +101,7 @@ export const ProjectInfoCard = ({ project }: { project: MemeResponse }) => {
 
               <Button
                 onClick={() => copyToClipboard(project.creator)}
-                className="w-fit gap-2 py-1 px-3 h-auto rounded-full text-sm font-normal leading-[20px] text-app-white hover:bg-white/[0.1] bg-inherit bg-gradient-to-r from-[#BDFE1C]/[0.27] to-[#BDFE1C]/[0.3]"
+                className="w-fit gap-2 py-1 px-3 h-auto rounded-full text-sm font-normal leading-[20px] text-app-white hover:bg-white/[0.1] bg-inherit bg-gradient-to-r from-[#EC5409]/[0.27] to-[#EC5409]/[0.3]"
               >
                 <IconCopy className="text-primary" />
                 {shortAddress(project.creator)}

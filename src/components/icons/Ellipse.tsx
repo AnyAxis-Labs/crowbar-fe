@@ -12,7 +12,7 @@ const SvgEllipse = (props: SVGProps<SVGSVGElement>) => (
       <ellipse
         cx={193}
         cy={173.501}
-        fill="#ABFF1E"
+        fill="#FC6F13"
         fillOpacity={0.2}
         rx={193}
         ry={72.854}
