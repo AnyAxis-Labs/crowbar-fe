@@ -100,10 +100,10 @@ export function CreateTokenForm() {
           <IconMagicWand className="w-7 h-7 md:w-10 md:h-10 text-primary absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
         </div>
         <CardTitle className="text-app-white text-center md:text-left text-[24px] md:text-[48px] font-semibold mt-0 mb-2 leading-[1.2]">
-          Create a new token
+          Create a new G@M3 Token
         </CardTitle>
         <p className="text-app-gray text-xs md:text-base text-center md:text-left">
-          Fill in the details and launch your token into the Uni!
+          Fill in the details and launch your G@M3 token on Crowbar.so
         </p>
       </CardHeader>
       <CardContent className="p-0">
@@ -114,7 +114,7 @@ export function CreateTokenForm() {
               name="tokenName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>What's Your Token Called?</FormLabel>
+                  <FormLabel>Token Name</FormLabel>
                   <FormControl>
                     <Input
                       placeholder="Ex: Shibainu"
@@ -131,7 +131,7 @@ export function CreateTokenForm() {
               name="tokenSymbol"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Pick a Short Symbol for Your Token!</FormLabel>
+                  <FormLabel>Token Symbol</FormLabel>
                   <FormControl>
                     <Input
                       placeholder="Ex: SHIB"

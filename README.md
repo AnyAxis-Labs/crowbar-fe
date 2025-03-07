@@ -36,7 +36,7 @@ A decentralized application for creating and trading tokens on Sonic.
 1. Clone the repository:
 
 ```bash
-git clone git@anyax.is:AnyAxis-Labs/tax-farm.git
+git clone git@anyax.is:AnyAxis-Labs/crowbar-fe.git
 ```
 
 2. Install dependencies:

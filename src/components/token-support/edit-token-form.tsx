@@ -150,7 +150,7 @@ export function EditTokenForm() {
           Token Support
         </CardTitle>
         <p className="text-app-gray text-xs md:text-base text-center md:text-left">
-          Fill in the details and launch your token into the Uni!
+          Fill in the details and launch your G@M3 token on Crowbar.so
         </p>
       </CardHeader>
       <CardContent className="p-0">
