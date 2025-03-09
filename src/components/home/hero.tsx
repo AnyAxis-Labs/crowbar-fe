@@ -3,21 +3,13 @@ import { useNavigate } from "@tanstack/react-router";
 import { get } from "es-toolkit/compat";
 import { useMemo } from "react";
 
-import {
-  IconChevronRight,
-  IconHomeBg,
-  IconLogoIcon,
-  IconRocket,
-} from "@/components/icons";
-// import { useTaxFarmControllerFindStatistic } from "@/services/queries";
+import { IconChevronRight, IconRocket } from "@/components/icons";
 import ModalTutorial from "@/components/shared/modal-tutorial";
 import { Button } from "@/components/ui/button";
 import { abbreviateNumber, toCurrency } from "@/lib/number";
 
 export default function HomeHero() {
   const navigate = useNavigate();
-
-  // const { data: statisticResponse } = useTaxFarmControllerFindStatistic();
 
   const data = get(
     { data: { totalToken: 100, totalUser: 100, totalRevenue: 100 } },
@@ -46,7 +38,11 @@ export default function HomeHero() {
       <div className="container flex items-center mx-auto px-4 isolate">
         <div className="flex flex-col w-full lg:flex-row items-center md:mx-auto lg:w-auto gap-[60px] lg:gap-36">
           <div className="w-full md:w-fit">
-            <IconLogoIcon className="h-[77px] w-[215px] mb-8" />
+            <img
+              className="h-[77px] aspect-square m-8 object-contain"
+              src="/logo.png"
+              alt="logo"
+            />
             <div className="flex items-center gap-6">
               <Button
                 className="rounded-full bg-primary-light text-primary-dark font-semibold flex items-center gap-2 py-2 px-4"

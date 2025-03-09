@@ -1,4 +1,4 @@
-import { IconLogoIcon, IconTelegram, IconX } from "@/components/icons";
+import { IconTelegram, IconX } from "@/components/icons";
 import { cn } from "@/lib/utils";
 
 export function Footer() {
@@ -6,7 +6,11 @@ export function Footer() {
     <footer className="bg-neutral-900 rounded-t-[24px] md:rounded-t-none mt-10">
       <div className="container py-8 flex flex-col gap-6 md:flex-row justify-between items-center md:items-start">
         <div className="max-w-md flex items-center">
-          <IconLogoIcon className="h-11 w-11 text-primary" />
+          <img
+            className="h-11 aspect-square m-8 object-contain"
+            src="/logo.png"
+            alt="logo"
+          />
         </div>
         <div className="w-full md:w-auto">
           <ul className="flex flex-row gap-2">

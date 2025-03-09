@@ -8,9 +8,7 @@ import {
   IconChevronRight,
   IconClose,
   IconLink,
-  IconLogoIcon,
   IconTelegram,
-  IconUniSymbol,
   IconWallet,
   IconX,
 } from "@/components/icons";
@@ -44,7 +42,11 @@ export const ModalMenu = NiceModal.create(() => {
         </VisuallyHidden.Root>
         <div className="flex items-center justify-between">
           <div className="flex items-center">
-            <IconLogoIcon className="h-11 w-11 text-primary" />
+            <img
+              className="h-11 aspect-square m-8 object-contain"
+              src="/logo.png"
+              alt="logo"
+            />
           </div>
 
           <Button

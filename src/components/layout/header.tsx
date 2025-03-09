@@ -9,7 +9,6 @@ import { useAccount, useAccountEffect, useDisconnect } from "wagmi";
 import {
   IconChevronDown,
   IconLink,
-  IconLogoIcon,
   IconMenu,
   IconProfile,
   IconTelegram,
@@ -120,7 +119,11 @@ function Header() {
         <div className="container mx-auto flex items-center justify-between">
           <div className="xl:min-w-[300px] flex">
             <Link to="/" className="flex items-center space-x-2">
-              <IconLogoIcon className="h-11 w-11 text-primary" />
+              <img
+                className="h-11 aspect-square m-8 object-contain"
+                src="/logo.png"
+                alt="logo"
+              />
             </Link>
           </div>
           <nav className="bg-white/[0.05] rounded-full p-1 hidden lg:flex">
