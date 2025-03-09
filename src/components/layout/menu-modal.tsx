@@ -26,13 +26,7 @@ export const ModalMenu = NiceModal.create(() => {
   const { disconnect } = useDisconnect();
   const navigate = useNavigate();
 
-  const menuItems = [
-    { name: "Home", path: "/" },
-    // { name: "Staking", path: "/staking" },
-    // { name: "Token Support", path: "/token-support" },
-    // { name: "Doc", path: "https://docs.planetverse.io" },
-    // { name: "Tutorial", path: "#tutorial" },
-  ];
+  const menuItems = [{ name: "Home", path: "/" }];
 
   return (
     <Dialog open={modal.visible} onOpenChange={modal.hide}>
