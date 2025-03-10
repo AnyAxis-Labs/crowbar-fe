@@ -18,9 +18,11 @@ export const ModalSuccess = NiceModal.create(() => {
           <div className="w-20 h-20 flex items-center justify-center bg-success/[0.12] mt-2 rounded-full">
             <IconCheck className="w-[60px] h-[60px] text-success" />
           </div>
-          <p className="mt-8 text-[24px] text-success font-bold">Mission Accomplished!</p>
+          <p className="mt-8 text-[24px] text-success font-bold">
+            Mission Accomplished!
+          </p>
           <p className="text-sm text-foreground mt-2 text-center">
-            Your request has been successfully completed in Uni!
+            Your token has successfully launched on crowbar.so
           </p>
 
           <Button
